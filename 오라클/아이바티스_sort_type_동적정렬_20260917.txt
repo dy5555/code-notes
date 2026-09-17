@@ -1,0 +1,24 @@
+[iBATIS 2 - sort_type 동적 ORDER BY]
+
+sort_type에 값이 있으면 해당 값을 ORDER BY에 사용하고,
+sort_type이 비어 있으면 CODE로 정렬한다.
+
+<isNotEmpty property="sort_type">
+    ORDER BY $sort_type$
+</isNotEmpty>
+
+<isEmpty property="sort_type">
+    ORDER BY CODE
+</isEmpty>
+
+예시)
+
+sort_type = "NAME ASC"
+-> ORDER BY NAME ASC
+
+sort_type = ""
+-> ORDER BY CODE
+
+주의)
+$sort_type$은 SQL 문자열에 그대로 치환되므로,
+사용자가 임의의 SQL 문자열을 입력할 수 없도록 정렬 컬럼 및 ASC/DESC 값을 제한해서 사용하는 것이 안전하다.
