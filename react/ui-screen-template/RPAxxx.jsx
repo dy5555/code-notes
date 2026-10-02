@@ -10,13 +10,10 @@ import useRPAxxxGrid from "./RPAxxx/hooks/useRPAxxxGrid";
  * 역할
  * 1. 필터 Hook과 Grid Hook을 연결한다.
  * 2. SearchFilter / ResultGrid 컴포넌트를 배치한다.
- * 3. 실제 업무 로직은 가급적 Hook으로 분리한다.
+ * 3. 보정 가능 건수와 일괄보정 버튼을 표시한다.
  */
 const RPAxxx = () => {
-  // 검색조건 및 초기값 관리
   const filter = useRPAxxxFilter();
-
-  // 필터 값을 기준으로 메인 조회 및 Grid 데이터를 관리
   const grid = useRPAxxxGrid(filter.values);
 
   return (
@@ -29,6 +26,22 @@ const RPAxxx = () => {
         onReset={filter.resetFilter}
         onSearch={grid.search}
       />
+
+      {/*
+        보정 가능 데이터가 1건 이상일 때만 일괄보정 버튼 활성화
+        예) 보정 가능 데이터 : 15건  [일괄보정]
+      */}
+      <div className="correction-area">
+        <span>보정 가능 데이터 : {grid.correctionCount}건</span>
+
+        <button
+          type="button"
+          onClick={grid.batchCorrect}
+          disabled={grid.correctionCount <= 0 || grid.loading}
+        >
+          일괄보정
+        </button>
+      </div>
 
       <ResultGrid
         rowData={grid.rowData}
