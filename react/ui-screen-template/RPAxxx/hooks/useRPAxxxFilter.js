@@ -12,12 +12,12 @@ import dayjs from "dayjs";
  */
 const useRPAxxxFilter = () => {
   const [searchFilter, setSearchFilter] = useState({
-    stockMonth: null,          // 재고조회 월
-    salesDemandWeek: "",       // 판매 Demand 주차
-    somMonth: null,            // 수요 SOM 월
+    stockMonth: null,          // 재고조회 월 DatePicker 값
+    salesDemandWeek: null,     // 판매 Demand 주차 DatePicker 값
+    somMonth: null,            // 수요 SOM 월 DatePicker 값
     somCds: [],                // 수요 SOM 코드 멀티콤보 선택값
-    salesResultMonth: null,    // 판매실적 월
-    inboundDemandWeek: "",     // 입고 Demand 주차
+    salesResultMonth: null,    // 판매실적 월 DatePicker 값
+    inboundDemandWeek: null,   // 입고 Demand 주차 DatePicker 값
   });
 
   // SOM 월 기준 코드 멀티콤보 목록
@@ -33,8 +33,13 @@ const useRPAxxxFilter = () => {
    *   4. 판매실적 월
    *   5. 입고 Demand 주차
    * - 서버에서는 MyBatis를 통해 각 테이블의 최신값을 조회하여 반환한다.
-   * - 월 값은 서버에서 YYYYMM 문자열로 받고 DatePicker 사용을 위해 dayjs 객체로 변환한다.
-   * - SOM 코드 선택값은 최초 진입 시 비워두고, somMonth 세팅 후 useEffect에서 해당 월 기준 코드 목록을 조회한다.
+   * - 월 값은 YYYYMM 형식으로 반환한다. 예: 202610
+   * - 주차 값은 YYYYWW 형식으로 반환한다. 예: 202640 = 2026년 40주차
+   * - 월 DatePicker는 dayjs 객체를 사용하므로 YYYYMM -> dayjs로 변환한다.
+   * - 주차도 DatePicker를 사용할 예정이므로 state는 null/dayjs 기준으로 관리한다.
+   * - 단, YYYYWW -> dayjs 변환은 회사 기존 주차 DatePicker의 주차 계산 기준 확인 후 적용한다.
+   *   (임의로 ISO Week 기준을 적용하지 않는다.)
+   * - SOM 코드 선택값은 최초 진입 시 비워두고, somMonth 세팅 후 해당 월 기준 코드 목록을 조회한다.
    */
   const fetchInitialFilterValues = useCallback(async () => {
     // TODO: 실제 프로젝트의 API import/함수명에 맞게 변경
@@ -42,13 +47,20 @@ const useRPAxxxFilter = () => {
 
     setSearchFilter({
       stockMonth: result.stockMonth ? dayjs(result.stockMonth, "YYYYMM") : null,
-      salesDemandWeek: result.salesDemandWeek || "",
+
+      // 서버 반환값 예: 202640
+      // TODO: 회사 기존 주차 DatePicker 변환 방식 확인 후 dayjs 값으로 변환
+      salesDemandWeek: result.salesDemandWeek || null,
+
       somMonth: result.somMonth ? dayjs(result.somMonth, "YYYYMM") : null,
       somCds: [],
       salesResultMonth: result.salesResultMonth
         ? dayjs(result.salesResultMonth, "YYYYMM")
         : null,
-      inboundDemandWeek: result.inboundDemandWeek || "",
+
+      // 서버 반환값 예: 202640
+      // TODO: 회사 기존 주차 DatePicker 변환 방식 확인 후 dayjs 값으로 변환
+      inboundDemandWeek: result.inboundDemandWeek || null,
     });
   }, []);
 
