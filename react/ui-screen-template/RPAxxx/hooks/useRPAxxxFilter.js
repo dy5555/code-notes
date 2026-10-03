@@ -23,18 +23,22 @@ const useRPAxxxFilter = () => {
   // SOM 월 기준 코드 멀티콤보 목록
   const [somCdOptions, setSomCdOptions] = useState([]);
 
-  /** 화면 최초 진입 시 최신 월/주차를 서버에서 한 번에 조회 */
+  /**
+   * 화면 최초 진입 시 초기 필터값 조회
+   *
+   * - Spring Boot API를 한 번만 호출하여 아래 5개 최신 기준값을 한 번에 조회한다.
+   *   1. 재고조회 월
+   *   2. 판매 Demand 주차
+   *   3. 수요 SOM 월
+   *   4. 판매실적 월
+   *   5. 입고 Demand 주차
+   * - 서버에서는 MyBatis를 통해 각 테이블의 최신값을 조회하여 반환한다.
+   * - 월 값은 서버에서 YYYYMM 문자열로 받고 DatePicker 사용을 위해 dayjs 객체로 변환한다.
+   * - SOM 코드 선택값은 최초 진입 시 비워두고, somMonth 세팅 후 useEffect에서 해당 월 기준 코드 목록을 조회한다.
+   */
   const fetchInitialFilterValues = useCallback(async () => {
-    // TODO: 실제 프로젝트 초기 필터 조회 API로 교체
-    // const result = await api.fetchInitialFilterValues();
-
-    const result = {
-      stockMonth: "202610",
-      salesDemandWeek: "202640",
-      somMonth: "202609",
-      salesResultMonth: "202609",
-      inboundDemandWeek: "202640",
-    };
+    // TODO: 실제 프로젝트의 API import/함수명에 맞게 변경
+    const result = await api.fetchInitialFilterValues();
 
     setSearchFilter({
       stockMonth: result.stockMonth ? dayjs(result.stockMonth, "YYYYMM") : null,
