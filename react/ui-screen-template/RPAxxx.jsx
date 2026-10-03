@@ -6,9 +6,7 @@ import useRPAxxxGrid from "./RPAxxx/hooks/useRPAxxxGrid";
 
 /**
  * RPAxxx 메인 화면
- *
  * 메인에서는 화면 조립과 Hook 연결만 담당한다.
- * 상세 업무 로직은 각 Hook으로 분리하여 운영/유지보수를 쉽게 한다.
  */
 const RPAxxx = () => {
   const filter = useRPAxxxFilter();
@@ -18,20 +16,20 @@ const RPAxxx = () => {
     <div>
       <SearchFilter
         values={filter.searchFilter}
-        somCodeOptions={filter.somCodeOptions}
+        somCodeOptions={filter.somCdOptions}
         onChange={filter.handleFilterChange}
-        onSomCodeChange={filter.handleSomCodeChange}
+        onSomCodeChange={filter.handleSomCdChange}
         onReset={filter.handleFilterReset}
-        onSearch={grid.search}
+        onSearch={grid.handleSearch}
       />
 
       <div className="correction-area">
-        <span>보정 가능 데이터 : {grid.correctionCount}건</span>
+        <span>보정 가능 데이터 : {grid.correctionAvailableCnt}건</span>
 
         <button
           type="button"
-          onClick={grid.batchCorrect}
-          disabled={grid.correctionCount <= 0 || grid.loading}
+          onClick={grid.handleBatchCorrection}
+          disabled={grid.correctionAvailableCnt <= 0 || grid.loading}
         >
           일괄보정
         </button>
