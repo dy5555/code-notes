@@ -2,161 +2,155 @@ import { useCallback, useEffect, useState } from "react";
 import dayjs from "dayjs";
 
 /**
- * Hook 파일 네이밍 규칙
- * - 커스텀 Hook 파일/함수는 반드시 use로 시작한다.
- * - 예: useRPAxxxFilter.js / useRPAxxxGrid.js
+ * 검색 필터 전용 Custom Hook
  *
- * 날짜 처리 규칙
- * - DatePicker에 들어가는 월 값은 dayjs 객체로 관리한다.
- * - API/쿼리 호출 직전에 YYYYMM 문자열로 변환한다.
+ * 운영/유지보수 원칙
+ * 1. 관련 검색조건은 searchFilter 객체 하나로 묶어서 관리한다.
+ * 2. 변수/함수명만 보고도 업무 의미를 알 수 있도록 작성한다.
+ * 3. 화면 최초 진입 시 최신 월/주차는 서버 API 한 번으로 조회한다.
+ * 4. 프론트에서는 최신 월/주차를 별도로 계산하지 않는다.
+ * 5. 월 DatePicker 값은 dayjs 객체로 관리한다.
+ * 6. SOM 코드 목록만 SOM 월에 종속된다.
  */
-
-/** 현재 월: DatePicker에서 사용할 dayjs 객체 */
-const getCurrentMonth = () => dayjs().startOf("month");
-
-/**
- * 현재 주차 값
- * 프로젝트의 주차 컴포넌트/공통함수가 있다면 해당 규칙으로 교체한다.
- */
-const getCurrentWeek = () => {
-  const startOfYear = dayjs().startOf("year");
-  const diffDays = dayjs().startOf("day").diff(startOfYear, "day");
-  const week = Math.ceil((diffDays + startOfYear.day() + 1) / 7);
-  return `${dayjs().format("YYYY")}-W${String(week).padStart(2, "0")}`;
-};
-
 const useRPAxxxFilter = () => {
-  const [values, setValues] = useState({
-    // 월 DatePicker 값은 dayjs 객체로 관리
-    stockMonth: null,
-    salesDemandWeek: "",
-    somCodes: [],
-    somMonth: null,
-    salesMonth: null,
-    inDemandWeek: "",
+  /**
+   * 화면 검색조건
+   * 각 월/주차 값은 서로 독립적으로 변경된다.
+   */
+  const [searchFilter, setSearchFilter] = useState({
+    stockMonth: null,            // 재고조회 월
+    salesDemandWeek: "",         // 판매 Demand 주차
+    somMonth: null,              // 수요 SOM 월
+    somCodes: [],                // 수요 SOM 코드 멀티콤보 선택값
+    salesResultMonth: null,      // 판매실적 월
+    inboundDemandWeek: "",       // 입고 Demand 주차
   });
 
+  // SOM 월을 기준으로 조회한 코드 멀티콤보 목록
   const [somCodeOptions, setSomCodeOptions] = useState([]);
 
   /**
-   * SOM 코드 목록 조회
-   * SOM 월이 변경될 때마다 해당 월을 YYYYMM으로 변환하여 조회한다.
+   * 화면 최초 진입 시 필요한 최신 월/주차를 서버에서 한 번에 조회한다.
+   *
+   * DB에서는 필요한 테이블의 최신 기준값을 UNION ALL 등으로 한 번에 조회하고,
+   * 서버에서는 아래처럼 의미 있는 필드명으로 가공해서 내려주는 것을 권장한다.
+   *
+   * {
+   *   stockMonth: "202610",
+   *   salesDemandWeek: "202640",
+   *   somMonth: "202609",
+   *   salesResultMonth: "202609",
+   *   inboundDemandWeek: "202640"
+   * }
    */
-  const loadSomCodes = useCallback(async (somMonth) => {
+  const fetchInitialFilterValues = useCallback(async () => {
+    // TODO: 실제 프로젝트 초기 필터 조회 API로 교체
+    // const result = await api.fetchInitialFilterValues();
+
+    // 예제용 서버 응답
+    const result = {
+      stockMonth: "202610",
+      salesDemandWeek: "202640",
+      somMonth: "202609",
+      salesResultMonth: "202609",
+      inboundDemandWeek: "202640",
+    };
+
+    // 서버 문자열을 화면 컴포넌트가 사용하는 형식으로 한 번만 변환한다.
+    setSearchFilter({
+      stockMonth: result.stockMonth ? dayjs(result.stockMonth, "YYYYMM") : null,
+      salesDemandWeek: result.salesDemandWeek || "",
+      somMonth: result.somMonth ? dayjs(result.somMonth, "YYYYMM") : null,
+      somCodes: [],
+      salesResultMonth: result.salesResultMonth
+        ? dayjs(result.salesResultMonth, "YYYYMM")
+        : null,
+      inboundDemandWeek: result.inboundDemandWeek || "",
+    });
+  }, []);
+
+  /**
+   * 선택한 SOM 월 기준 코드 목록 조회
+   * SOM 월 변경 시에만 호출한다.
+   */
+  const fetchSomCodeOptions = useCallback(async (somMonth) => {
     if (!somMonth) {
       setSomCodeOptions([]);
       return;
     }
 
-    const params = {
+    const requestParams = {
       somMonth: dayjs(somMonth).format("YYYYMM"),
     };
 
-    // TODO: 실제 프로젝트 API로 교체
-    // const result = await api.getSomCodes(params);
+    // TODO: 실제 SOM 코드 목록 API로 교체
+    // const result = await api.fetchSomCodeOptions(requestParams);
     // setSomCodeOptions(result);
 
-    console.log("SOM 코드 조회조건", params);
+    console.log("SOM 코드 목록 조회조건", requestParams);
 
+    // UI 확인용 임시 데이터
     setSomCodeOptions([
-      { value: "SOM001", label: `${params.somMonth} / SOM001` },
-      { value: "SOM002", label: `${params.somMonth} / SOM002` },
+      { value: "SOM001", label: `${requestParams.somMonth} / SOM001` },
+      { value: "SOM002", label: `${requestParams.somMonth} / SOM002` },
     ]);
   }, []);
 
   /**
-   * SOM 테이블 최신 월 조회
-   * 실제 API에서 202609 같은 문자열이 오면 dayjs 객체로 변환해서 DatePicker에 넣는다.
+   * 일반 검색조건 변경
+   * 하나의 공통 함수로 관리하여 필터별 set 함수 생성을 줄인다.
    */
-  const loadLatestSomMonth = useCallback(async () => {
-    // const result = await api.getLatestSomMonth();
-    // return dayjs(result.latestMonth, "YYYYMM");
-
-    return getCurrentMonth(); // 예제용
-  }, []);
-
-  /** 판매실적 테이블 최신 월 조회 */
-  const loadLatestSalesMonth = useCallback(async () => {
-    // const result = await api.getLatestSalesMonth();
-    // return dayjs(result.latestMonth, "YYYYMM");
-
-    return getCurrentMonth(); // 예제용
-  }, []);
-
-  /**
-   * 최초 진입 / 초기화
-   * - 재고조회 월: 현재 최신 월
-   * - 판매 Demand 주차: 현재 최신 주차
-   * - SOM 월: DB 최신 월
-   * - 판매실적 월: DB 최신 월
-   * - 입고 Demand 주차: 현재 최신 주차
-   */
-  const setInitialFilter = useCallback(async () => {
-    const currentMonth = getCurrentMonth();
-    const currentWeek = getCurrentWeek();
-
-    const [latestSomMonth, latestSalesMonth] = await Promise.all([
-      loadLatestSomMonth(),
-      loadLatestSalesMonth(),
-    ]);
-
-    setValues({
-      stockMonth: currentMonth,
-      salesDemandWeek: currentWeek,
-      somCodes: [],
-      somMonth: latestSomMonth,
-      salesMonth: latestSalesMonth,
-      inDemandWeek: currentWeek,
-    });
-  }, [loadLatestSalesMonth, loadLatestSomMonth]);
-
-  /** 각 필터는 자기 값만 변경한다. */
-  const handleChange = useCallback((name, value) => {
-    setValues((prev) => ({
-      ...prev,
-      [name]: value,
+  const handleFilterChange = useCallback((filterName, filterValue) => {
+    setSearchFilter((previousFilter) => ({
+      ...previousFilter,
+      [filterName]: filterValue,
     }));
   }, []);
 
-  const handleSomCodeChange = useCallback((codes) => {
-    setValues((prev) => ({
-      ...prev,
-      somCodes: codes,
+  /** SOM 코드 멀티콤보 선택값 변경 */
+  const handleSomCodeChange = useCallback((selectedSomCodes) => {
+    setSearchFilter((previousFilter) => ({
+      ...previousFilter,
+      somCodes: selectedSomCodes,
     }));
   }, []);
 
-  const resetFilter = useCallback(async () => {
-    await setInitialFilter();
-  }, [setInitialFilter]);
+  /** 검색조건 초기화: 서버의 최신 기준값을 다시 조회한다. */
+  const handleFilterReset = useCallback(async () => {
+    await fetchInitialFilterValues();
+  }, [fetchInitialFilterValues]);
 
+  /** 화면 최초 진입 시 초기 필터 API는 한 번만 호출한다. */
   useEffect(() => {
-    setInitialFilter();
-  }, [setInitialFilter]);
+    fetchInitialFilterValues();
+  }, [fetchInitialFilterValues]);
 
   /**
-   * 유일한 종속관계
-   * SOM 월 변경 -> 기존 SOM 코드 선택 초기화 -> 변경 월 기준 코드 재조회
+   * 유일한 필터 종속관계
+   * SOM 월 변경
+   *   -> 이전 월에서 선택한 SOM 코드 초기화
+   *   -> 변경된 SOM 월 기준 코드 목록 재조회
    */
   useEffect(() => {
-    if (!values.somMonth) {
+    if (!searchFilter.somMonth) {
       setSomCodeOptions([]);
       return;
     }
 
-    setValues((prev) => ({
-      ...prev,
+    setSearchFilter((previousFilter) => ({
+      ...previousFilter,
       somCodes: [],
     }));
 
-    loadSomCodes(values.somMonth);
-  }, [values.somMonth, loadSomCodes]);
+    fetchSomCodeOptions(searchFilter.somMonth);
+  }, [searchFilter.somMonth, fetchSomCodeOptions]);
 
   return {
-    values,
+    searchFilter,
     somCodeOptions,
-    handleChange,
+    handleFilterChange,
     handleSomCodeChange,
-    resetFilter,
+    handleFilterReset,
   };
 };
 
