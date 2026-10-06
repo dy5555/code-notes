@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import {
-  queryMainGrid,
+  searchRpa048,
   getCorrectionAvailableCnt,
 } from "../../../api/r/pm/pla/RPAxxxApi";
 
@@ -49,7 +49,7 @@ const useRPAxxxGrid = (searchFilter) => {
 
       // 메인 Grid 조회만 queryViewPost 사용
       const [rows, cntResult] = await Promise.all([
-        queryMainGrid(params),
+        searchRpa048(params),
         getCorrectionAvailableCnt(params),
       ]);
 
