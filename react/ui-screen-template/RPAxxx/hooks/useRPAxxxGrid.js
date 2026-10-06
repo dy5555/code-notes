@@ -1,15 +1,16 @@
 import { useCallback, useMemo, useState } from "react";
 import dayjs from "dayjs";
+import {
+  queryMainGrid,
+  getCorrectionAvailableCnt,
+} from "../../../api/r/pm/pla/RPAxxxApi";
 
 /**
  * 메인 ag-Grid 전용 Hook
- * 공통 약어는 짧고 명확하게 사용한다. (code -> cd, count -> cnt)
  */
 const useRPAxxxGrid = (searchFilter) => {
   const [rowData, setRowData] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // 보정 가능 데이터 건수. 0이면 일괄보정 버튼 비활성화.
   const [correctionAvailableCnt, setCorrectionAvailableCnt] = useState(0);
 
   const columnDefs = useMemo(
@@ -23,7 +24,7 @@ const useRPAxxxGrid = (searchFilter) => {
     []
   );
 
-  /** 화면 검색조건을 API 파라미터로 변환 */
+  /** 화면 검색조건 -> API 파라미터 */
   const makeParams = useCallback(() => ({
     stockMonth: searchFilter.stockMonth
       ? dayjs(searchFilter.stockMonth).format("YYYYMM")
@@ -39,16 +40,6 @@ const useRPAxxxGrid = (searchFilter) => {
     inboundDemandWeek: searchFilter.inboundDemandWeek,
   }), [searchFilter]);
 
-  /** 보정 가능 데이터 건수 조회 */
-  const fetchCorrectionAvailableCnt = useCallback(async (params) => {
-    // TODO: 실제 건수 조회 API로 교체
-    // const result = await api.fetchCorrectionAvailableCnt(params);
-    // return Number(result.cnt || 0);
-
-    console.log("보정 가능 데이터 건수 조회조건", params);
-    return 0;
-  }, []);
-
   /** 메인 조회 */
   const handleSearch = useCallback(async () => {
     const params = makeParams();
@@ -56,23 +47,14 @@ const useRPAxxxGrid = (searchFilter) => {
     try {
       setLoading(true);
 
-      // TODO: 실제 메인 조회 API로 교체
-      // 독립 API라면 Grid 데이터/보정 가능 건수는 Promise.all로 병렬 조회 가능
-
-      console.log("메인 조회조건", params);
-
-      setRowData([
-        {
-          type: "예시",
-          salesProdId: "PROD001",
-          rpSomCd: "SOM001",
-          batchCorrectionYn: "N",
-          correctedRpSomCd: "",
-        },
+      // 메인 Grid 조회만 queryViewPost 사용
+      const [rows, cntResult] = await Promise.all([
+        queryMainGrid(params),
+        getCorrectionAvailableCnt(params),
       ]);
 
-      const cnt = await fetchCorrectionAvailableCnt(params);
-      setCorrectionAvailableCnt(cnt);
+      setRowData(rows || []);
+      setCorrectionAvailableCnt(Number(cntResult?.cnt || 0));
     } catch (error) {
       console.error("메인 조회 중 오류가 발생했습니다.", error);
       setRowData([]);
@@ -80,29 +62,13 @@ const useRPAxxxGrid = (searchFilter) => {
     } finally {
       setLoading(false);
     }
-  }, [fetchCorrectionAvailableCnt, makeParams]);
+  }, [makeParams]);
 
-  /** 일괄보정 */
   const handleBatchCorrection = useCallback(async () => {
     if (correctionAvailableCnt <= 0) return;
 
-    const params = makeParams();
-
-    try {
-      setLoading(true);
-
-      // TODO: 실제 일괄보정 API로 교체
-      // await api.batchCorrectRPAxxx(params);
-
-      console.log("일괄보정 실행조건", params);
-
-      // 처리 완료 후 handleSearch()로 Grid/건수를 최신 상태로 갱신
-    } catch (error) {
-      console.error("일괄보정 중 오류가 발생했습니다.", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [correctionAvailableCnt, makeParams]);
+    // TODO: 일괄보정 API 방식 확인 후 구현
+  }, [correctionAvailableCnt]);
 
   return {
     rowData,
