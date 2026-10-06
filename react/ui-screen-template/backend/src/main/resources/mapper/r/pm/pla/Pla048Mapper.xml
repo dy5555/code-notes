@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="r.pm.pla.store.Pla048Store">
+
+    <!--
+        S001 : 화면 최초 진입 시 최신 월/주차 조회
+
+        아래 테이블명/컬럼명은 아직 확정되지 않았으므로
+        실제 업무 테이블/컬럼으로 교체해서 사용한다.
+    -->
+    <select id="S001"
+            parameterType="r.pm.pla.dto.Pla048Dto"
+            resultType="r.pm.pla.dto.Pla048Dto">
+
+        SELECT MAX(CASE WHEN A.TYPE = 'STOCK_MONTH'
+                        THEN A.BASE_VAL END) AS STOCK_MONTH
+             , MAX(CASE WHEN A.TYPE = 'SALES_DEMAND_WEEK'
+                        THEN A.BASE_VAL END) AS SALES_DEMAND_WEEK
+             , MAX(CASE WHEN A.TYPE = 'SOM_MONTH'
+                        THEN A.BASE_VAL END) AS SOM_MONTH
+             , MAX(CASE WHEN A.TYPE = 'SALES_RESULT_MONTH'
+                        THEN A.BASE_VAL END) AS SALES_RESULT_MONTH
+             , MAX(CASE WHEN A.TYPE = 'INBOUND_DEMAND_WEEK'
+                        THEN A.BASE_VAL END) AS INBOUND_DEMAND_WEEK
+          FROM (
+                SELECT 'STOCK_MONTH' AS TYPE
+                     , MAX(STOCK_YM) AS BASE_VAL
+                  FROM STOCK_TABLE
+
+                UNION ALL
+
+                SELECT 'SALES_DEMAND_WEEK' AS TYPE
+                     , MAX(DEMAND_WEEK) AS BASE_VAL
+                  FROM SALES_DEMAND_TABLE
+
+                UNION ALL
+
+                SELECT 'SOM_MONTH' AS TYPE
+                     , MAX(SOM_YM) AS BASE_VAL
+                  FROM SOM_TABLE
+
+                UNION ALL
+
+                SELECT 'SALES_RESULT_MONTH' AS TYPE
+                     , MAX(RESULT_YM) AS BASE_VAL
+                  FROM SALES_RESULT_TABLE
+
+                UNION ALL
+
+                SELECT 'INBOUND_DEMAND_WEEK' AS TYPE
+                     , MAX(DEMAND_WEEK) AS BASE_VAL
+                  FROM INBOUND_DEMAND_TABLE
+               ) A
+
+    </select>
+
+</mapper>
