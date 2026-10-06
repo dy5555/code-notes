@@ -16,7 +16,7 @@ export const getInitialFilterValues = async (params = {}) => {
   let searchData = params;
 
   const response = await axiosUtil.get(
-    "실제 초기값 조회 URL",
+    "/r/pm/pla/pla04801",
     searchData,
     {}
   );
