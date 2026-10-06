@@ -1,5 +1,6 @@
 package r.pm.pla.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,18 +11,18 @@ import lombok.Setter;
 @Setter
 public class Pla048Dto {
 
-    /** 재고조회 월 YYYYMM */
+    @Schema(description = "재고조회 월", hidden = true)
     private String stockMonth;
 
-    /** 판매 Demand 주차 YYYYWW */
+    @Schema(description = "판매 Demand 주차", hidden = true)
     private String salesDemandWeek;
 
-    /** 수요 SOM 월 YYYYMM */
+    @Schema(description = "수요 SOM 월", hidden = true)
     private String somMonth;
 
-    /** 판매실적 월 YYYYMM */
+    @Schema(description = "판매실적 월", hidden = true)
     private String salesResultMonth;
 
-    /** 입고 Demand 주차 YYYYWW */
+    @Schema(description = "입고 Demand 주차", hidden = true)
     private String inboundDemandWeek;
 }
