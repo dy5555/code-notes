@@ -1,22 +1,21 @@
 /**
- * RPAxxx API
+ * RPA048 API
  *
- * 회사 프로젝트 호출 기준
- * - 메인 Grid 조회: queryViewPost(url, searchData, {})
- * - 초기값/SOM 코드/건수 조회: get(url, searchData, {})
- *
- * 세 번째 빈 객체({})는 회사 공통 함수에서 요구하는 인자이며,
- * 정확한 용도는 공통 함수 정의 확인 후 주석을 보완한다.
+ * 회사 프로젝트 API 호출 패턴
+ * - 함수에서 params를 받는다.
+ * - let searchData = params; 형태로 조회조건을 넘긴다.
+ * - 메인 Grid 조회는 axiosUtil.queryViewPost(url, searchData, {}) 사용
+ * - 나머지 조회는 axiosUtil.get(url, searchData, {}) 사용
  */
 
-// TODO: 실제 회사 공통 함수 import 경로로 변경
-// import { get, queryViewPost } from "@/.../axiosUtil";
+// TODO: 실제 회사 axiosUtil import 경로로 변경
+// import axiosUtil from "@/.../axiosUtil";
 
 /** 최초 월/주차 기준값 조회 */
-export const getInitialFilterValues = async () => {
-  const searchData = {};
+export const getInitialFilterValues = async (params = {}) => {
+  let searchData = params;
 
-  const response = await get(
+  const response = await axiosUtil.get(
     "실제 초기값 조회 URL",
     searchData,
     {}
@@ -26,8 +25,10 @@ export const getInitialFilterValues = async () => {
 };
 
 /** SOM 월 기준 코드 목록 조회 */
-export const getSomCdOptions = async (searchData) => {
-  const response = await get(
+export const getSomCdOptions = async (params) => {
+  let searchData = params;
+
+  const response = await axiosUtil.get(
     "실제 SOM 코드 조회 URL",
     searchData,
     {}
@@ -37,8 +38,10 @@ export const getSomCdOptions = async (searchData) => {
 };
 
 /** 메인 Grid 조회 */
-export const queryMainGrid = async (searchData) => {
-  const response = await queryViewPost(
+export const searchRpa048 = async (params) => {
+  let searchData = params;
+
+  const response = await axiosUtil.queryViewPost(
     "실제 메인 조회 URL",
     searchData,
     {}
@@ -48,8 +51,10 @@ export const queryMainGrid = async (searchData) => {
 };
 
 /** 보정 가능 데이터 건수 조회 */
-export const getCorrectionAvailableCnt = async (searchData) => {
-  const response = await get(
+export const getCorrectionAvailableCnt = async (params) => {
+  let searchData = params;
+
+  const response = await axiosUtil.get(
     "실제 보정 가능 건수 조회 URL",
     searchData,
     {}
