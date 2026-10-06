@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import {
   searchRpa048,
   getCorrectionAvailableCnt,
+  batchCorrection,
 } from "../../../api/r/pm/pla/RPAxxxApi";
 
 /**
@@ -47,7 +48,6 @@ const useRPAxxxGrid = (searchFilter) => {
     try {
       setLoading(true);
 
-      // 메인 Grid 조회만 queryViewPost 사용
       const [rows, cntResult] = await Promise.all([
         searchRpa048(params),
         getCorrectionAvailableCnt(params),
@@ -64,11 +64,35 @@ const useRPAxxxGrid = (searchFilter) => {
     }
   }, [makeParams]);
 
+  /** 보정 RP_SOM_CD가 입력된 Row만 서버로 전달하여 일괄보정 */
   const handleBatchCorrection = useCallback(async () => {
     if (correctionAvailableCnt <= 0) return;
 
-    // TODO: 일괄보정 API 방식 확인 후 구현
-  }, [correctionAvailableCnt]);
+    const correctionRows = rowData
+      .filter((row) => row.correctedRpSomCd)
+      .map((row) => ({
+        salesProdId: row.salesProdId,
+        correctionRpSomCd: row.correctedRpSomCd,
+      }));
+
+    // 실제 입력된 보정값이 없으면 API를 호출하지 않는다.
+    if (correctionRows.length === 0) return;
+
+    try {
+      setLoading(true);
+
+      // 프론트에서는 API를 한 번만 호출한다.
+      // 서버에서는 correctionRows를 for문으로 순회하며 프로시저를 호출한다.
+      await batchCorrection(correctionRows);
+
+      // 보정 완료 후 Grid와 보정 가능 건수를 최신 상태로 다시 조회한다.
+      await handleSearch();
+    } catch (error) {
+      console.error("일괄보정 중 오류가 발생했습니다.", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [correctionAvailableCnt, rowData, handleSearch]);
 
   return {
     rowData,
