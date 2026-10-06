@@ -62,3 +62,21 @@ export const getCorrectionAvailableCnt = async (params) => {
 
   return response;
 };
+
+/**
+ * 일괄보정
+ * - 보정 RP_SOM_CD 값이 입력된 Row만 배열로 전달한다.
+ * - 서버에서 배열을 순회하며 Row별 프로시저를 호출한다.
+ */
+// TODO: 실제 일괄보정 URL로 변경
+export const batchCorrection = async (params) => {
+  let searchData = params;
+
+  const response = await axiosUtil.queryViewPost(
+    "실제 일괄보정 URL",
+    searchData,
+    {}
+  );
+
+  return response;
+};
