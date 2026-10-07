@@ -11,18 +11,18 @@ import lombok.Setter;
 @Setter
 public class Pla048Dto {
 
-    @Schema(description = "재고조회 월", hidden = true)
-    private String stockMonth;
+    // S001 조회 결과의 구분값
+    // 예: stock_ym
+    @Schema(description = "구분", hidden = true)
+    private String type;
 
-    @Schema(description = "판매 Demand 주차", hidden = true)
-    private String salesDemandWeek;
+    // type에 해당하는 실제 월/주차 값
+    // 예: 202605
+    @Schema(description = "월/주차 코드", hidden = true)
+    private String code;
 
-    @Schema(description = "수요 SOM 월", hidden = true)
-    private String somMonth;
-
-    @Schema(description = "판매실적 월", hidden = true)
-    private String salesResultMonth;
-
-    @Schema(description = "입고 Demand 주차", hidden = true)
-    private String inboundDemandWeek;
+    // PLN Revision 값
+    // 예: ccc
+    @Schema(description = "PLN Revision", hidden = true)
+    private String plnRev;
 }
