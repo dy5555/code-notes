@@ -1,5 +1,7 @@
 package r.pm.pla.api;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,9 +23,15 @@ public class Pla048Api {
 
     /**
      * S001 - 화면 최초 진입 시 최신 월/주차 조회
+     *
+     * 응답 예:
+     * [
+     *   { type: "stock_ym", code: "202605", plnRev: "ccc" },
+     *   ...
+     * ]
      */
     @GetMapping("/pla04801")
-    public Pla048Dto pla04801(Pla048Dto dto) {
+    public List<Pla048Dto> pla04801(Pla048Dto dto) {
         return pla048Service.pla048Select(dto);
     }
 }
