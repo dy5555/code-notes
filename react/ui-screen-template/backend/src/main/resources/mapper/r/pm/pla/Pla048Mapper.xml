@@ -8,52 +8,52 @@
     <!--
         S001 : 화면 최초 진입 시 최신 월/주차 조회
 
-        아래 테이블명/컬럼명은 아직 확정되지 않았으므로
+        UNION ALL 결과를 한 행으로 다시 합치지 않고 그대로 반환한다.
+
+        반환 형태 예:
+        TYPE     : stock_ym
+        CODE     : 202605
+        PLN_REV  : ccc
+
+        아래 테이블명/컬럼명은 샘플이므로
         실제 업무 테이블/컬럼으로 교체해서 사용한다.
     -->
     <select id="S001"
             parameterType="r.pm.pla.dto.Pla048Dto"
             resultType="r.pm.pla.dto.Pla048Dto">
 
-        SELECT MAX(CASE WHEN A.TYPE = 'STOCK_MONTH'
-                        THEN A.BASE_VAL END) AS STOCK_MONTH
-             , MAX(CASE WHEN A.TYPE = 'SALES_DEMAND_WEEK'
-                        THEN A.BASE_VAL END) AS SALES_DEMAND_WEEK
-             , MAX(CASE WHEN A.TYPE = 'SOM_MONTH'
-                        THEN A.BASE_VAL END) AS SOM_MONTH
-             , MAX(CASE WHEN A.TYPE = 'SALES_RESULT_MONTH'
-                        THEN A.BASE_VAL END) AS SALES_RESULT_MONTH
-             , MAX(CASE WHEN A.TYPE = 'INBOUND_DEMAND_WEEK'
-                        THEN A.BASE_VAL END) AS INBOUND_DEMAND_WEEK
-          FROM (
-                SELECT 'STOCK_MONTH' AS TYPE
-                     , MAX(STOCK_YM) AS BASE_VAL
-                  FROM STOCK_TABLE
+        SELECT 'stock_ym' AS TYPE
+             , MAX(STOCK_YM) AS CODE
+             , NULL AS PLN_REV
+          FROM STOCK_TABLE
 
-                UNION ALL
+        UNION ALL
 
-                SELECT 'SALES_DEMAND_WEEK' AS TYPE
-                     , MAX(DEMAND_WEEK) AS BASE_VAL
-                  FROM SALES_DEMAND_TABLE
+        SELECT 'sales_demand_week' AS TYPE
+             , MAX(DEMAND_WEEK) AS CODE
+             , NULL AS PLN_REV
+          FROM SALES_DEMAND_TABLE
 
-                UNION ALL
+        UNION ALL
 
-                SELECT 'SOM_MONTH' AS TYPE
-                     , MAX(SOM_YM) AS BASE_VAL
-                  FROM SOM_TABLE
+        SELECT 'som_ym' AS TYPE
+             , MAX(SOM_YM) AS CODE
+             , NULL AS PLN_REV
+          FROM SOM_TABLE
 
-                UNION ALL
+        UNION ALL
 
-                SELECT 'SALES_RESULT_MONTH' AS TYPE
-                     , MAX(RESULT_YM) AS BASE_VAL
-                  FROM SALES_RESULT_TABLE
+        SELECT 'sales_result_ym' AS TYPE
+             , MAX(RESULT_YM) AS CODE
+             , NULL AS PLN_REV
+          FROM SALES_RESULT_TABLE
 
-                UNION ALL
+        UNION ALL
 
-                SELECT 'INBOUND_DEMAND_WEEK' AS TYPE
-                     , MAX(DEMAND_WEEK) AS BASE_VAL
-                  FROM INBOUND_DEMAND_TABLE
-               ) A
+        SELECT 'inbound_demand_week' AS TYPE
+             , MAX(DEMAND_WEEK) AS CODE
+             , NULL AS PLN_REV
+          FROM INBOUND_DEMAND_TABLE
 
     </select>
 
