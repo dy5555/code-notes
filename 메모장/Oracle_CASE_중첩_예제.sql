@@ -1,0 +1,10 @@
+-- FAMILY별 APP_LVL_1_CD 값 처리
+CASE
+    WHEN FAMILY = 'DRAM' THEN APP_LVL_1_CD
+    WHEN FAMILY = 'NAND' THEN
+        CASE
+            WHEN APP_LVL_1_CD_NM = 'ST' THEN 'STTT'
+            ELSE APP_LVL_1_CD_NM
+        END
+    ELSE NULL
+END AS APP_LVL_1_CD
