@@ -13,14 +13,14 @@ export function useRPA000Search() {
     const initialFiltersRef = useRef(null);
 
     // 2. 초기 검색조건 생성
-    // API 조회 전에는 null, 조회 후에는 최초 조회값 반환
+    // API 조회 전 사용할 기본 검색조건
     const createInitialFilters = () => ({
-        stockMonth: initialFiltersRef.current?.stockMonth ?? null,
-        salesDemandWeek: initialFiltersRef.current?.salesDemandWeek ?? null,
-        somMonth: initialFiltersRef.current?.somMonth ?? null,
-        somCds: [...(initialFiltersRef.current?.somCds ?? [])],
-        salesResultMonth: initialFiltersRef.current?.salesResultMonth ?? null,
-        inboundDemandWeek: initialFiltersRef.current?.inboundDemandWeek ?? null
+        stockMonth: null,
+        salesDemandWeek: null,
+        somMonth: null,
+        somCds: [],
+        salesResultMonth: null,
+        inboundDemandWeek: null
     });
 
     // 3. 기존 filters
