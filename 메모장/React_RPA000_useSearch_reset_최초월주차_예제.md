@@ -41,14 +41,14 @@ export function useRPA000Search() {
                 // 실제 프로젝트 API 함수로 교체
                 const result = await getInitialMonthWeek();
 
-                // 최초 조회값 보관
+                // 최초 조회한 검색조건 전체 보관
                 initialFiltersRef.current = {
-                    ...result,
-                    somCds: [...(result.somCds ?? [])]
+                    ...createInitialFilters(),
+                    ...result
                 };
 
-                // 조회한 월·주차를 화면 검색조건에 설정
-                reset(createInitialFilters());
+                // 조회한 검색조건 전체를 화면에 설정
+                reset(initialFiltersRef.current);
 
             } catch (error) {
                 console.error('초기 검색조건 조회 실패', error);
@@ -62,8 +62,11 @@ export function useRPA000Search() {
     // 6. 기존 초기화 함수
     const resetFilters = useCallback(async () => {
 
-        // 최초 API 조회값으로 검색조건 복원
-        reset(createInitialFilters());
+        // 최초 API 조회값 전체로 검색조건 복원
+        reset({
+            ...initialFiltersRef.current,
+            somCds: [...(initialFiltersRef.current?.somCds ?? [])]
+        });
 
     }, [reset]);
 
