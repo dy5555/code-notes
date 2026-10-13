@@ -24,7 +24,7 @@ export function useRPA000Search() {
     });
 
     // 3. 기존 filters
-    const [filters] = useState(createInitialFilters);
+    const [filters, setFilters] = useState(createInitialFilters);
 
     // 4. 기존 React Hook Form
     const formMethods = useForm({
@@ -47,7 +47,10 @@ export function useRPA000Search() {
                     ...result
                 };
 
-                // 조회한 검색조건 전체를 화면에 설정
+                // SearchFilterComp에 전달할 filters 갱신
+                setFilters(initialFiltersRef.current);
+
+                // React Hook Form에도 조회값 설정
                 reset(initialFiltersRef.current);
 
             } catch (error) {
@@ -88,4 +91,4 @@ export function useRPA000Search() {
 | 사용자가 월 변경 | `202608` |
 | 초기화 버튼 클릭 | `202609` |
 
-**주의:** `getInitialMonthWeek()`는 예시 API 함수명이므로 실제 프로젝트 함수로 교체해야 합니다. `filters`는 `useState` 초기값으로 고정되어 API 조회 후 자동 변경되지 않습니다. 따라서 `FilterComp defaultValues={filters}`가 실제 폼 초기값으로 쓰이는 경우 동기화 여부를 확인해야 합니다.
+**주의:** `getInitialMonthWeek()`는 예시 API 함수명이므로 실제 프로젝트 함수로 교체해야 합니다. API 조회 후 `setFilters()`와 `reset()`으로 검색조건을 갱신합니다. `MonthPickerField`에 값이 표시되려면 폼 연결 및 날짜 형식이 맞아야 합니다.
