@@ -41,11 +41,33 @@ export function useRPA000Search() {
                 // 실제 프로젝트 API 함수로 교체
                 const result = await getInitialMonthWeek();
 
+                // API 응답 data 배열(5행)을 검색조건 필드에 매핑
+                const initialValues = createInitialFilters();
+
+                result.data.forEach((item) => {
+                    switch (item.type) {
+                        case 'STOCK_YM':
+                            initialValues.stockMonth = item.code;
+                            break;
+                        case 'SALES_DEMAND_YM':
+                            initialValues.salesDemandWeek = item.code;
+                            break;
+                        case 'SOM_YM':
+                            initialValues.somMonth = item.code;
+                            break;
+                        case 'SALES_ACT_YM':
+                            initialValues.salesResultMonth = item.code;
+                            break;
+                        case 'GR_DEMAND_YM':
+                            initialValues.inboundDemandWeek = item.code;
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
                 // 최초 조회한 검색조건 전체 보관
-                initialFiltersRef.current = {
-                    ...createInitialFilters(),
-                    ...result
-                };
+                initialFiltersRef.current = initialValues;
 
                 // SearchFilterComp에 전달할 filters 갱신
                 setFilters(initialFiltersRef.current);
