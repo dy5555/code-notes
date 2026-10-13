@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { getInitialMonthWeek } from "../../../../../../api/r/pm/pla/RPA000Api";
+import { getInitialMonthWeek } from "../../../../../api/r/pm/pla/RPA000Api";
 
 /**
  * 서버의 YYYYMM 문자열(예: 202610)을 DatePicker가 이해하는 dayjs로 변환합니다.
