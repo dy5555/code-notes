@@ -18,6 +18,7 @@ export function useRPA000Search() {
         stockMonth: null,
         salesDemandWeek: null,
         somMonth: null,
+        somCd: null, // 단일 선택 SOM 코드
         salesResultMonth: null,
         inboundDemandWeek: null
     });
@@ -25,7 +26,7 @@ export function useRPA000Search() {
     // 3. 기존 filters
     const [filters, setFilters] = useState(createInitialFilters);
 
-    // SOM 월에 해당하는 코드 목록 (멀티콤보 옵션)
+    // SOM 월에 해당하는 코드 목록 (단일 선택 콤보 옵션)
     const [somCodeList, setSomCodeList] = useState([]);
 
     // 4. 기존 React Hook Form
@@ -39,22 +40,25 @@ export function useRPA000Search() {
     const loadSomCodes = useCallback(async (somMonth) => {
         if (!somMonth) {
             setSomCodeList([]);
-            return;
+            return [];
         }
 
         // 실제 프로젝트 API 함수로 교체
         const result = await getSomCodeList({ somMonth });
-        setSomCodeList(result.data ?? []);
+        const list = result.data ?? [];
+        setSomCodeList(list);
+        return list;
     }, []);
 
     // SOM 월 변경 시 호출할 함수 (MonthPickerField의 onChange에 연결)
     const handleSomMonthChange = useCallback(async (newMonth) => {
-        setFilters((prev) => ({ ...prev, somMonth: newMonth }));
-        // 기존 월에서 선택했던 코드는 새 월에서 유효하지 않을 수 있음
-        // 선택값 초기화는 실제 멀티콤보 필드명/연결 방식 확인 후 적용
+        // 월 변경 시 이전 선택값을 먼저 비움
+        setFilters((prev) => ({ ...prev, somMonth: newMonth, somCd: null }));
         setSomCodeList([]);
         try {
-            await loadSomCodes(newMonth);
+            const list = await loadSomCodes(newMonth);
+            // 변경된 월에서도 조회 결과 첫 번째 코드를 기본 선택
+            setFilters((prev) => ({ ...prev, somCd: list[0]?.code ?? null }));
         } catch (error) {
             console.error('SOM 코드 조회 실패', error);
         }
@@ -93,14 +97,15 @@ export function useRPA000Search() {
                     }
                 });
 
+                // 최초 SOM 월로 코드 목록 조회하고 첫 번째 코드 선택
+                const somCodes = await loadSomCodes(initialValues.somMonth);
+                initialValues.somCd = somCodes[0]?.code ?? null;
+
                 // 최초 조회한 검색조건 전체 보관
                 initialFiltersRef.current = initialValues;
 
                 // SearchFilterComp에 전달할 filters 갱신
-                setFilters(initialFiltersRef.current);
-
-                // 최초 SOM 월로 코드 목록 조회
-                await loadSomCodes(initialValues.somMonth);
+                setFilters(initialValues);
 
                 // 주의: 기존 화면에서 reset() 실행 시 반복 렌더링 발생
                 // 원인 확인 전까지 최초 조회에서는 호출하지 않음
@@ -136,10 +141,11 @@ export function useRPA000Search() {
 
 ## SOM 코드 목록 연결
 
-- `somCodeList`: SOM 월 기준 조회한 멀티콤보 옵션 목록. 실제 컴포넌트의 옵션 prop에 전달합니다.
+- `somCodeList`: SOM 월 기준 조회한 단일 선택 콤보 옵션 목록. 실제 컴포넌트의 옵션 prop에 전달합니다.
 - `handleSomMonthChange(newMonth)`: SOM 월 변경 이벤트에서 호출합니다. `newMonth`는 API가 요구하는 `YYYYMM` 형식으로 전달해야 합니다.
 - `getSomCodeList`: 예시 API 이름이므로 실제 함수로 교체해야 합니다.
-- SOM 코드 **선택값** 초기화는 현재 선택 필드명과 멀티콤보 사용 방식이 확인되면 연결해야 합니다.
+- `somCd`: 선택된 SOM 코드 1개. 최초 조회 및 SOM 월 변경 시 목록의 첫 번째 `code`를 자동 선택합니다. 목록이 비면 `null`입니다.
+- 실제 SOM 코드 응답의 값 필드가 `code`가 아니라면 `list[0]?.code` 부분을 해당 필드명으로 변경해야 합니다.
 
 ## 동작 예시
 
