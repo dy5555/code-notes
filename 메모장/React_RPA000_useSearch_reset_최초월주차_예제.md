@@ -18,7 +18,6 @@ export function useRPA000Search() {
         stockMonth: null,
         salesDemandWeek: null,
         somMonth: null,
-        somCds: [],
         salesResultMonth: null,
         inboundDemandWeek: null
     });
@@ -88,10 +87,7 @@ export function useRPA000Search() {
     const resetFilters = useCallback(async () => {
 
         // 최초 API 조회값 전체로 검색조건 복원
-        reset({
-            ...initialFiltersRef.current,
-            somCds: [...(initialFiltersRef.current?.somCds ?? [])]
-        });
+        reset({ ...initialFiltersRef.current });
 
     }, [reset]);
 
