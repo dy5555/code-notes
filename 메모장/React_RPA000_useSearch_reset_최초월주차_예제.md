@@ -5,6 +5,7 @@
 ```jsx
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import dayjs from 'dayjs';
 
 export function useRPA000Search() {
 
@@ -34,7 +35,7 @@ export function useRPA000Search() {
         defaultValues: createInitialFilters()
     });
 
-    const { reset } = formMethods;
+    const { reset, setValue } = formMethods;
 
     // SOM 코드 목록 공통 조회: 최초 진입과 SOM 월 변경 시 함께 사용
     const loadSomCodes = useCallback(async (somMonth) => {
@@ -62,15 +63,22 @@ export function useRPA000Search() {
     const handleSomMonthChange = useCallback(async (newMonth) => {
         // 월 변경 시 이전 선택값을 먼저 비움
         setFilters((prev) => ({ ...prev, somMonth: newMonth, somCd: null }));
+        // 다른 월·주차는 유지하고 SOM 필드만 React Hook Form과 동기화
+        setValue('somMonth', newMonth);
+        setValue('somCd', null);
         setSomCodeList([]);
         try {
-            const list = await loadSomCodes(newMonth);
+            // DatePicker 값은 그대로 보관하고 API 요청값만 YYYYMM으로 변환
+            const plnYm = dayjs(newMonth).format('YYYYMM');
+            const list = await loadSomCodes(plnYm);
             // 변경된 월에서도 조회 결과 첫 번째 코드를 기본 선택
-            setFilters((prev) => ({ ...prev, somCd: list[0]?.plnVer ?? null }));
+            const firstSomCd = list[0]?.plnVer ?? null;
+            setFilters((prev) => ({ ...prev, somCd: firstSomCd }));
+            setValue('somCd', firstSomCd);
         } catch (error) {
             console.error('SOM 코드 조회 실패', error);
         }
-    }, [loadSomCodes]);
+    }, [loadSomCodes, setValue]);
 
     // 5. 화면 최초 진입 시 월·주차 조회
     useEffect(() => {
@@ -129,10 +137,14 @@ export function useRPA000Search() {
     }, [loadSomCodes]);
 
     // 6. 기존 초기화 함수
-    const resetFilters = useCallback(async () => {
+    const resetFilters = useCallback(() => {
 
-        // 최초 API 조회값 전체로 검색조건 복원
-        reset({ ...initialFiltersRef.current });
+        if (!initialFiltersRef.current) return;
+
+        // 최초 API 조회값으로 filters와 React Hook Form을 함께 복원
+        const initialValues = { ...initialFiltersRef.current };
+        setFilters(initialValues);
+        reset(initialValues);
 
     }, [reset]);
 
@@ -150,7 +162,7 @@ export function useRPA000Search() {
 ## SOM 코드 목록 연결
 
 - `somCodeList`: SOM 월 기준 조회한 단일 선택 콤보 옵션 목록. `loadSomCodes()`에서 원본 조회 결과의 `plnVer`를 `{ label, value }`로 변환해 저장합니다. 실제 컴포넌트의 옵션 prop에 전달합니다.
-- `handleSomMonthChange(newMonth)`: SOM 월 변경 이벤트에서 호출합니다. `newMonth`는 API가 요구하는 `YYYYMM` 형식으로 전달해야 합니다.
+- `handleSomMonthChange(newMonth)`: SOM 월 변경 이벤트에서 호출합니다. DatePicker의 `newMonth` 값은 그대로 유지하고 API 요청 시에만 `dayjs(newMonth).format('YYYYMM')`으로 변환합니다. `setValue`로 React Hook Form의 SOM 월·코드 필드만 동기화하며 다른 월·주차는 유지합니다.
 - `getSomCodeList`: 예시 API 이름이므로 실제 함수로 교체해야 합니다.
 - `somCd`: 선택된 SOM 코드 1개. 최초 조회 및 SOM 월 변경 시 목록의 첫 번째 `code`를 자동 선택합니다. 목록이 비면 `null`입니다.
 - 최초 선택은 원본 목록의 `somCodes[0]?.plnVer`를 사용합니다. `SelectField`에서 `options={somCodeList}`로 연결하되, 프로젝트 컴포넌트가 `{ label, value }` 형식을 지원하는지 확인해야 합니다.
@@ -164,4 +176,4 @@ export function useRPA000Search() {
 | 사용자가 월 변경 | `202608` |
 | 초기화 버튼 클릭 | `202609` |
 
-**주의:** `getInitialMonthWeek()`는 예시 API 함수명이므로 실제 프로젝트 함수로 교체해야 합니다. API 조회 후 `setFilters()`로 검색조건을 갱신합니다. 이전 테스트에서 최초 조회 시 `reset()`으로 반복 렌더링이 발생해 해당 호출은 주석 상태로 유지했습니다. 기존 `resetFilters()`의 `reset()` 호출은 그대로이며 초기화 버튼 동작 시 별도 검증이 필요합니다. `MonthPickerField`에 값이 표시되려면 폼 연결 및 날짜 형식이 맞아야 합니다.
+**주의:** `getInitialMonthWeek()`는 예시 API 함수명이므로 실제 프로젝트 함수로 교체해야 합니다. API 조회 후 `setFilters()`로 검색조건을 갱신합니다. 이전 테스트에서 최초 조회 시 `reset()`으로 반복 렌더링이 발생해 해당 호출은 주석 상태로 유지했습니다. `resetFilters()`는 `setFilters()`와 `reset()`을 함께 호출하도록 수정했습니다. 초기화 버튼에서 `reset()` 반복 렌더링 여부는 별도 검증이 필요합니다. `MonthPickerField`에 값이 표시되려면 폼 연결 및 날짜 형식이 맞아야 합니다.
