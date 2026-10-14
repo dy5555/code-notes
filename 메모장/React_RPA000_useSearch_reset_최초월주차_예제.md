@@ -62,8 +62,7 @@ export function useRPA000Search() {
     // SOM 월 변경 시 호출할 함수 (MonthPickerField의 onChange에 연결)
     const handleSomMonthChange = useCallback(async (newMonth) => {
         // 월 변경 시 이전 선택값을 먼저 비움
-        setFilters((prev) => ({ ...prev, somMonth: newMonth, somCd: null }));
-        // 다른 월·주차는 유지하고 SOM 필드만 React Hook Form과 동기화
+        // 변경된 SOM 필드만 React Hook Form에 반영 (다른 월·주차 유지)
         setValue('somMonth', newMonth);
         setValue('somCd', null);
         setSomCodeList([]);
@@ -73,7 +72,6 @@ export function useRPA000Search() {
             const list = await loadSomCodes(plnYm);
             // 변경된 월에서도 조회 결과 첫 번째 코드를 기본 선택
             const firstSomCd = list[0]?.plnVer ?? null;
-            setFilters((prev) => ({ ...prev, somCd: firstSomCd }));
             setValue('somCd', firstSomCd);
         } catch (error) {
             console.error('SOM 코드 조회 실패', error);
@@ -159,12 +157,19 @@ export function useRPA000Search() {
 }
 ```
 
+## 수정 사항 (SOM 월 변경 시 다른 검색조건 초기화 방지)
+
+- `handleSomMonthChange()` 안의 `setFilters((prev) => ...)` 두 군데를 삭제했습니다.
+- SOM 월·코드는 `setValue()`로만 변경하고, 기존 다른 월·주차 입력값은 유지합니다.
+- 최초 조회의 `setFilters(initialValues)`와 기존 초기화 함수는 유지했습니다. 다만 초기화 함수의 `reset()` 동작은 별도 검증이 필요합니다.
+- 다른 곳에서 `filters.somMonth` 또는 `filters.somCd`를 읽는 경우에는 변경값이 반영되지 않을 수 있으므로 폼 값 사용 여부를 확인해야 합니다.
+
 ## SOM 코드 목록 연결
 
 - `somCodeList`: SOM 월 기준 조회한 단일 선택 콤보 옵션 목록. `loadSomCodes()`에서 원본 조회 결과의 `plnVer`를 `{ label, value }`로 변환해 저장합니다. 실제 컴포넌트의 옵션 prop에 전달합니다.
 - `handleSomMonthChange(newMonth)`: SOM 월 변경 이벤트에서 호출합니다. DatePicker의 `newMonth` 값은 그대로 유지하고 API 요청 시에만 `dayjs(newMonth).format('YYYYMM')`으로 변환합니다. `setValue`로 React Hook Form의 SOM 월·코드 필드만 동기화하며 다른 월·주차는 유지합니다.
 - `getSomCodeList`: 예시 API 이름이므로 실제 함수로 교체해야 합니다.
-- `somCd`: 선택된 SOM 코드 1개. 최초 조회 및 SOM 월 변경 시 목록의 첫 번째 `code`를 자동 선택합니다. 목록이 비면 `null`입니다.
+- `somCd`: 선택된 SOM 코드 1개. 최초 조회 및 SOM 월 변경 시 목록의 첫 번째 `plnVer`를 자동 선택합니다. 목록이 비면 `null`입니다.
 - 최초 선택은 원본 목록의 `somCodes[0]?.plnVer`를 사용합니다. `SelectField`에서 `options={somCodeList}`로 연결하되, 프로젝트 컴포넌트가 `{ label, value }` 형식을 지원하는지 확인해야 합니다.
 
 ## 동작 예시
