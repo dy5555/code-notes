@@ -146,13 +146,31 @@ export function useRPA000Search() {
 
     }, [reset]);
 
-    // 7. 다른 컴포넌트에서 사용
+    // 7. 메인 조회 API에 전달할 검색조건 생성
+    // DatePicker의 내부 값은 유지하고 월 필드만 YYYYMM으로 변환
+    const getSearchParams = () => {
+        const params = formMethods.getValues();
+
+        const formatMonth = (value) =>
+            value ? dayjs(value).format('YYYYMM') : null;
+
+        return {
+            ...params,
+            stockMonth: formatMonth(params.stockMonth),
+            somMonth: formatMonth(params.somMonth),
+            salesResultMonth: formatMonth(params.salesResultMonth)
+            // salesDemandWeek, inboundDemandWeek는 실제 DB 주차 형식 확인 후 변환
+        };
+    };
+
+    // 8. 다른 컴포넌트에서 사용
     return {
         filters,
         formMethods,
         resetFilters,
         somCodeList,
-        handleSomMonthChange
+        handleSomMonthChange,
+        getSearchParams
     };
 }
 ```
@@ -182,3 +200,11 @@ export function useRPA000Search() {
 | 초기화 버튼 클릭 | `202609` |
 
 **주의:** `getInitialMonthWeek()`는 예시 API 함수명이므로 실제 프로젝트 함수로 교체해야 합니다. API 조회 후 `setFilters()`로 검색조건을 갱신합니다. 이전 테스트에서 최초 조회 시 `reset()`으로 반복 렌더링이 발생해 해당 호출은 주석 상태로 유지했습니다. `resetFilters()`는 `setFilters()`와 `reset()`을 함께 호출하도록 수정했습니다. 초기화 버튼에서 `reset()` 반복 렌더링 여부는 별도 검증이 필요합니다. `MonthPickerField`에 값이 표시되려면 폼 연결 및 날짜 형식이 맞아야 합니다.
+
+## 메인 조회조건 변환 추가
+
+- `getSearchParams()`를 필터 Hook에 추가하고 반환 객체에 포함했습니다.
+- 월 필드 `stockMonth`, `somMonth`, `salesResultMonth`만 `YYYYMM` 문자열로 변환합니다. `somCd`는 그대로 유지합니다.
+- **주차** `salesDemandWeek`, `inboundDemandWeek`는 DB의 실제 주차 코드 형식을 아직 확인하지 못했으므로 임의 변환하지 않았습니다. 확인 후 별도 포맷을 적용하세요.
+- Tab에서 `await search(getSearchParams());`로 호출합니다. `getSearchParams`도 기존 Hook → 메인 → Tab Props 경로로 전달해야 합니다.
+- 참고: 날짜 필드에 실제로 밀리초 숫자가 들어 있다면 dayjs가 변환할 수 있습니다. 최초 API의 `YYYYMM` 문자열이 폼에 그대로 남아 있는 경우에는 해당 문자열의 파싱 방식도 확인해야 합니다.
