@@ -6,6 +6,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
+import isoWeekYear from 'dayjs/plugin/isoWeekYear';
+
+dayjs.extend(isoWeek);
+dayjs.extend(isoWeekYear);
 
 export function useRPA000Search() {
 
@@ -154,12 +159,20 @@ export function useRPA000Search() {
         const formatMonth = (value) =>
             value ? dayjs(value).format('YYYYMM') : null;
 
+        // DB 주차가 ISO 주차 기준(YYYYWW)이라는 가정
+        const formatWeek = (value) => {
+            if (!value) return null;
+            const date = dayjs(value);
+            return `${date.isoWeekYear()}${String(date.isoWeek()).padStart(2, '0')}`;
+        };
+
         return {
             ...params,
             stockMonth: formatMonth(params.stockMonth),
+            salesDemandWeek: formatWeek(params.salesDemandWeek),
             somMonth: formatMonth(params.somMonth),
-            salesResultMonth: formatMonth(params.salesResultMonth)
-            // salesDemandWeek, inboundDemandWeek는 실제 DB 주차 형식 확인 후 변환
+            salesResultMonth: formatMonth(params.salesResultMonth),
+            inboundDemandWeek: formatWeek(params.inboundDemandWeek)
         };
     };
 
@@ -205,6 +218,11 @@ export function useRPA000Search() {
 
 - `getSearchParams()`를 필터 Hook에 추가하고 반환 객체에 포함했습니다.
 - 월 필드 `stockMonth`, `somMonth`, `salesResultMonth`만 `YYYYMM` 문자열로 변환합니다. `somCd`는 그대로 유지합니다.
-- **주차** `salesDemandWeek`, `inboundDemandWeek`는 DB의 실제 주차 코드 형식을 아직 확인하지 못했으므로 임의 변환하지 않았습니다. 확인 후 별도 포맷을 적용하세요.
+- **주차** `salesDemandWeek`, `inboundDemandWeek`는 `YYYYWW` 형식(예: `202640`)으로 변환하도록 추가했습니다. 현재는 **ISO 주차 기준**으로 구현했으며, DB 주차 계산 기준이 다르면 맞춰 수정해야 합니다. 연말 연초 경계는 `isoWeekYear()`를 사용합니다.
 - Tab에서 `await search(getSearchParams());`로 호출합니다. `getSearchParams`도 기존 Hook → 메인 → Tab Props 경로로 전달해야 합니다.
 - 참고: 날짜 필드에 실제로 밀리초 숫자가 들어 있다면 dayjs가 변환할 수 있습니다. 최초 API의 `YYYYMM` 문자열이 폼에 그대로 남아 있는 경우에는 해당 문자열의 파싱 방식도 확인해야 합니다.
+
+### 주차 형식 확인
+
+- `202640`은 2026년 40주차를 의미합니다. DB가 ISO 주차(월요일 시작, ISO 주차 연도)를 쓰는지 확인하세요.
+- DatePicker가 반환하는 값이 날짜 타임스탬프/객체일 때 위 변환을 사용합니다. 값이 이미 `202640` 문자열이라면 다시 날짜로 해석하지 말고 그대로 보내야 합니다.
