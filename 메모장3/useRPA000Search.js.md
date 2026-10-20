@@ -49,8 +49,8 @@ export function useRPA000Search() {
     const formMethods = useForm({ defaultValues: createInitialFilters() });
     const { setValue, getValues } = formMethods;
 
-    // 기존 DatePicker가 Dayjs를 요구한다면 여기서 API 문자열을 변환해야 함.
-    // 실제 컴포넌트 형식을 모르는 상태에서 임의로 변환하지 않음.
+    // 최초 월·주차 및 초기화 값은 날짜 변환 없이 API에서 받은 값 그대로 설정.
+    // 날짜 변환은 getSearchParams()에서 API 검색조건을 만들 때만 수행.
     const applyFormValues = useCallback((values) => {
         Object.entries(values).forEach(([key, value]) => {
             setValue(key, value);
@@ -172,7 +172,7 @@ export function useRPA000Search() {
 ## 확인이 필요한 실제 프로젝트 사항
 
 1. `item.type`, `item.code`, `item.plnVer`는 기존 문서의 **가상 응답 필드**. 실제 필드로 교체.
-2. 날짜 컴포넌트가 Dayjs를 요구하면 `applyFormValues`에서 월/주차별 자료형 변환 필수. 현재 예시는 날짜 자료형을 확정하지 않음.
+2. 최초 월·주차는 변환 없이 `setValue()`로 적용합니다. 단, 기존 DatePicker가 문자열을 정상 표시하는지 확인하세요. 날짜 변환은 `getSearchParams()`에서 검색 API 요청을 만들 때만 수행합니다.
 3. `formatWeek`는 ISO 주차 기준 예시. 실제 업무 주차 규칙 확인.
 4. SOM 옵션 조회 실패/재시도와 초기화의 순서가 겹치는 경우, Tab의 useEffect 조건을 함께 확인해야 함.
 5. 기존 `filters` 상태는 퍼블리싱 호환을 위해 유지. 실제 폼 입력의 현재값은 `formMethods`가 관리.
