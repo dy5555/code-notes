@@ -49,14 +49,6 @@ export function useRPA000Search() {
     const formMethods = useForm({ defaultValues: createInitialFilters() });
     const { setValue, getValues } = formMethods;
 
-    // 최초 월·주차 및 초기화 값은 날짜 변환 없이 API에서 받은 값 그대로 설정.
-    // 날짜 변환은 getSearchParams()에서 API 검색조건을 만들 때만 수행.
-    const applyFormValues = useCallback((values) => {
-        Object.entries(values).forEach(([key, value]) => {
-            setValue(key, value);
-        });
-    }, [setValue]);
-
     // aaa01 결과를 외부(Tab)에서 전달받아 최초 한 번만 적용
     const applyInitialData = useCallback((rows) => {
         if (initialFiltersRef.current !== null) return null;
@@ -89,9 +81,15 @@ export function useRPA000Search() {
 
         initialFiltersRef.current = { ...values };
         setFilters({ ...values });
-        applyFormValues(values);
+        // 최초 1회만 각 검색조건 설정 (공통 반복 setValue 함수 사용 안 함)
+        setValue('stockMonth', values.stockMonth);
+        setValue('salesDemandWeek', values.salesDemandWeek);
+        setValue('somMonth', values.somMonth);
+        setValue('somCd', values.somCd);
+        setValue('salesResultMonth', values.salesResultMonth);
+        setValue('inboundDemandWeek', values.inboundDemandWeek);
         return formatMonth(values.somMonth);
-    }, [applyFormValues]);
+    }, [setValue]);
 
     // aaa02 결과를 전달받아 옵션 갱신 및 첫 코드 선택
     // 조회 요청에 사용한 월도 함께 받아, 현재 선택 월과 다른 늦은 응답은 무시
@@ -129,10 +127,16 @@ export function useRPA000Search() {
         if (initialFiltersRef.current === null) return;
 
         const initial = { ...initialFiltersRef.current };
-        applyFormValues(initial);
+        // 초기화 버튼에서만 실행. reset() 또는 전체 필드 반복 함수 사용 안 함
+        setValue('stockMonth', initial.stockMonth);
+        setValue('salesDemandWeek', initial.salesDemandWeek);
+        setValue('somMonth', initial.somMonth);
+        setValue('somCd', initial.somCd);
+        setValue('salesResultMonth', initial.salesResultMonth);
+        setValue('inboundDemandWeek', initial.inboundDemandWeek);
         setFilters(initial);
         setSomCodeList(initialSomCodeListRef.current ?? []);
-    }, [applyFormValues]);
+    }, [setValue]);
 
     const getSearchParams = useCallback(() => {
         const params = getValues();
@@ -163,7 +167,7 @@ export function useRPA000Search() {
 
 - `RPA000.jsx`에서 `useRPA000Search()`를 호출하고 반환 함수를 기존 `getPaneProps()`로 Tab에 전달.
 - Tab에서 `useRPA000Fetch(tabId)` 호출.
-- 최초 `initialData` 성공 시 `applyInitialData(initialData)` 호출. 반환한 월이 있으면 `setSomMonth(월)` 호출.
+- 최초 `initialData` 성공 시 `applyInitialData(initialData)` 호출. Hook 내부의 `initialFiltersRef`가 최초 한 번만 적용하도록 방어하며, Tab effect에서 매 렌더마다 재호출하지 않도록 의존성을 점검. 반환한 월이 있으면 `setSomMonth(월)` 호출.
 - SOM 코드 조회 성공 시 `applySomCodes(somCodeData, somMonth)` 호출. 단, **조회 결과가 확정된 현재 월**에 대해서만 적용. React Query의 `isSuccess`와 `somMonth`를 확인.
 - SOM 월 변경 시 `setSomMonth(handleSomMonthChange(newMonth))`.
 - 초기화 시 `resetFilters()`를 호출하고, Fetch의 `setSomMonth(null)`도 호출해 이전 SOM 조회 상태를 비활성화. **기존 캐시/응답을 다시 폼에 적용하는 effect가 없도록 조건 확인**. 이후 사용자가 SOM 월을 선택하면 다시 조회 가능.
@@ -172,7 +176,7 @@ export function useRPA000Search() {
 ## 확인이 필요한 실제 프로젝트 사항
 
 1. `item.type`, `item.code`, `item.plnVer`는 기존 문서의 **가상 응답 필드**. 실제 필드로 교체.
-2. 최초 월·주차는 변환 없이 `setValue()`로 적용합니다. 단, 기존 DatePicker가 문자열을 정상 표시하는지 확인하세요. 날짜 변환은 `getSearchParams()`에서 검색 API 요청을 만들 때만 수행합니다.
+2. 최초 월·주차는 최초 한 번만 개별 `setValue()`로 적용합니다. 초기화도 버튼 클릭 시 개별 적용하며 `reset()`/공통 반복 함수는 사용하지 않습니다. 단, 기존 DatePicker가 문자열을 정상 표시하는지 확인하세요. 날짜 변환은 `getSearchParams()`에서 검색 API 요청을 만들 때만 수행합니다.
 3. `formatWeek`는 ISO 주차 기준 예시. 실제 업무 주차 규칙 확인.
 4. SOM 옵션 조회 실패/재시도와 초기화의 순서가 겹치는 경우, Tab의 useEffect 조건을 함께 확인해야 함.
 5. 기존 `filters` 상태는 퍼블리싱 호환을 위해 유지. 실제 폼 입력의 현재값은 `formMethods`가 관리.
