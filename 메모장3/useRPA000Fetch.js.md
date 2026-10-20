@@ -44,7 +44,7 @@ export function useRPA000Fetch(tabId) {
     });
 
     // aaa03: 조회 버튼으로 실행하는 메인 그리드
-    const { data: gridData = [], isFetching } = useQuery({
+    const { data: gridData = [], isLoading } = useQuery({
         queryKey: ['RPA000_GRID', tabId, searchParams, trigger],
         queryFn: async () => {
             if (!searchParams) return [];
@@ -75,7 +75,7 @@ export function useRPA000Fetch(tabId) {
         initialData,
         somCodeData,
         gridData,
-        isFetching,
+        isLoading,
         isSearched,
         setSomMonth,
         search,
@@ -96,7 +96,7 @@ RPA000Tab.jsx
        ├─ aaa01 → initialData → applyInitialData(initialData)
        │                        └─ 반환 SOM 월 → setSomMonth(...)
        ├─ aaa02 → somCodeData → applySomCodes(somCodeData)
-       └─ aaa03 → gridData → TableComp
+       └─ aaa03 → gridData / isLoading → TableComp
 ```
 
 ## 주의사항
