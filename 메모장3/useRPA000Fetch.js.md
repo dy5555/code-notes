@@ -1,12 +1,12 @@
-# useRPA000Fetch.js — API 호출 전담 예시
+# useRPA000Fetch.js — 회사 Tab 호출 패턴
 
-> 회사의 기존 **Tab에서 Fetch Hook 호출** 패턴에 맞춘 예시입니다. API 함수 이름, import 경로 및 응답 구조는 실제 프로젝트에 맞춰 바꿔야 합니다.
+> API 호출만 담당. 이미 작성된 실제 API 함수명을 import해서 사용. 아래 함수명은 예시.
 
 ```jsx
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-// 이미 만든 실제 API 함수로 교체해서 import
+// 실제 프로젝트에서 만들어 둔 API 함수 import
 // import { fetchaaa01301, fetchaaa01302, fetchaaa01303 } from '실제 API 경로';
 
 export function useRPA000Fetch(tabId) {
@@ -15,8 +15,11 @@ export function useRPA000Fetch(tabId) {
     const [trigger, setTrigger] = useState(0);
     const [isSearched, setIsSearched] = useState(false);
 
-    // aaa01: 최초 월·주차 조회
-    const { data: initialData = [] } = useQuery({
+    // aaa01: 최초 월·주차
+    const {
+        data: initialData = [],
+        isSuccess: isInitialSuccess
+    } = useQuery({
         queryKey: ['RPA000_INITIAL', tabId],
         queryFn: async () => {
             const result = await fetchaaa01301({});
@@ -28,8 +31,11 @@ export function useRPA000Fetch(tabId) {
         gcTime: 5 * 60 * 1000
     });
 
-    // aaa02: SOM 월별 코드 조회
-    const { data: somCodeData = [] } = useQuery({
+    // aaa02: SOM 월 변경 시 코드 목록
+    const {
+        data: somCodeData = [],
+        isSuccess: isSomSuccess
+    } = useQuery({
         queryKey: ['RPA000_SOM', tabId, somMonth],
         queryFn: async () => {
             if (!somMonth) return [];
@@ -44,7 +50,10 @@ export function useRPA000Fetch(tabId) {
     });
 
     // aaa03: 조회 버튼으로 실행하는 메인 그리드
-    const { data: gridData = [], isLoading } = useQuery({
+    const {
+        data: gridData = [],
+        isLoading
+    } = useQuery({
         queryKey: ['RPA000_GRID', tabId, searchParams, trigger],
         queryFn: async () => {
             if (!searchParams) return [];
@@ -67,13 +76,16 @@ export function useRPA000Fetch(tabId) {
     const clearGrid = () => {
         setSearchParams(null);
         setIsSearched(false);
-        // 주의: useQuery의 기존 data가 즉시 []가 되는 것은 아님.
-        // 실제 회사 clearGrid 구현이 있으면 그 코드를 유지할 것.
+        // 실제 회사의 clearGrid 구현이 있으면 기존 코드 유지.
+        // 이 예시만으로 기존 그리드 데이터가 즉시 []가 되는 것은 아님.
     };
 
     return {
         initialData,
+        isInitialSuccess,
         somCodeData,
+        isSomSuccess,
+        somMonth,
         gridData,
         isLoading,
         isSearched,
@@ -84,25 +96,19 @@ export function useRPA000Fetch(tabId) {
 }
 ```
 
-## 실제 연결 경로
+## 역할/연결
 
 ```text
 RPA000.jsx
-  └─ useRPA000Search()
-       └─ 검색조건 / applyInitialData / applySomCodes / handleSomMonthChange
-
+  └─ useRPA000Search()   // 검색조건 관리
+        ↓ props
 RPA000Tab.jsx
   └─ useRPA000Fetch(tabId)
-       ├─ aaa01 → initialData → applyInitialData(initialData)
-       │                        └─ 반환 SOM 월 → setSomMonth(...)
-       ├─ aaa02 → somCodeData → applySomCodes(somCodeData)
+       ├─ aaa01 → initialData → applyInitialData()
+       ├─ aaa02 → somCodeData → applySomCodes()
        └─ aaa03 → gridData / isLoading → TableComp
 ```
 
-## 주의사항
+Tab의 최초 데이터/옵션 반영은 `isInitialSuccess`, `isSomSuccess`로 성공 상태를 확인한 후 실행합니다. `isSomSuccess`가 true라도 초기화 직후 `somMonth`가 null이면 옵션을 적용하지 않아야 합니다. 초기화 이벤트에서는 `resetFilters()`와 `setSomMonth(null)`를 함께 호출하면 추가 SOM API 요청 없이 Fetch 쿼리를 비활성화할 수 있습니다.
 
-1. `fetchaaa01301`, `fetchaaa01302`, `fetchaaa01303`은 예시 함수명입니다. **이미 작성한 실제 API 함수를 사용하세요.**
-2. 최초 조회의 `result.data`가 배열이 아닐 경우 실제 응답 형태에 맞춰 변경하세요.
-3. `clearGrid()`는 실제 회사 구현이 있다면 **그대로 유지**해야 합니다. 위 코드는 최소 구조 설명용입니다.
-4. React Query의 `staleTime: 0`은 마운트/재활성화 상황에서 재조회가 가능하다는 뜻이지, 무조건 최초 한 번만 실행한다는 뜻이 아닙니다.
-5. Search의 초기화가 Fetch의 SOM 월 상태까지 초기화하지 않으므로, 초기화 이후 다시 같은 SOM 월을 선택하는 경우 등은 실제 화면 이벤트에 맞춰 동기화해야 합니다.
+**주의:** `fetchaaa01301~03`, 응답 `result.data`는 실제 API 규격에 맞게 확인해야 합니다. `isLoading`은 React Query의 최초 로딩 상태이며 재조회 진행 여부까지 표시하려면 `isFetching`이 별도로 필요합니다.
