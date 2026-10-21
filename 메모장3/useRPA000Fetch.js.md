@@ -15,14 +15,14 @@ dayjs.extend(isoWeekYear);
 // API 요청 직전에서만 날짜 형식 변환
 const formatMonth = (value) => {
     if (!value) return null;
-    if (/^\\d{6}$/.test(String(value))) return String(value);
+    if (/^\d{6}$/.test(String(value))) return String(value);
     const date = dayjs(value);
     return date.isValid() ? date.format('YYYYMM') : null;
 };
 
 const formatWeek = (value) => {
     if (!value) return null;
-    if (/^\\d{6}$/.test(String(value))) return String(value);
+    if (/^\d{6}$/.test(String(value))) return String(value);
     const date = dayjs(value);
     return date.isValid()
         ? `${date.isoWeekYear()}${String(date.isoWeek()).padStart(2, '0')}`
