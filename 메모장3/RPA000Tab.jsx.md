@@ -1,0 +1,109 @@
+# RPA000Tab.jsx — Search / Fetch 연결 예시
+
+> 기존 Tab 퍼블리싱을 교체하지 말고 **아래 연결 부분만 기존 코드에 반영**하세요. SearchFilterComp / TableComp의 실제 props 이름과 tabId 취득 방식은 기존 소스를 유지합니다.
+
+```jsx
+import { useEffect, useRef, useCallback } from 'react';
+import { useRPA000Fetch } from '../hooks/useRPA000Fetch';
+// 기존 SearchFilterComp, TableComp import는 유지
+
+export default function RPA000Tab({
+    tabId,
+    // RPA000.jsx에서 useRPA000Search()를 호출하고 getPaneProps()로 전달
+    filters,
+    setFilters,
+    formMethods,
+    somCodeList,
+    applyInitialData,
+    applySomCodes,
+    handleSomMonthChange,
+    resetFilters,
+    getSearchParams
+}) {
+    const {
+        initialData,
+        isInitialSuccess,
+        somCodeData,
+        isSomSuccess,
+        somMonth,
+        gridData,
+        isLoading,
+        isSearched,
+        setSomMonth,
+        search,
+        clearGrid
+    } = useRPA000Fetch(tabId);
+
+    // 최초 월·주차 결과는 Tab 생명주기에서 한 번만 적용.
+    // Search Hook 내부 initialFiltersRef도 중복 적용을 방어함.
+    const initialAppliedRef = useRef(false);
+
+    useEffect(() => {
+        if (!isInitialSuccess || initialAppliedRef.current) return;
+        initialAppliedRef.current = true;
+
+        const initialSomMonth = applyInitialData(initialData);
+        if (initialSomMonth) setSomMonth(initialSomMonth);
+    }, [isInitialSuccess, initialData, applyInitialData, setSomMonth]);
+
+    // SOM 코드 결과를 현재 월에만 적용.
+    // 동일 월/동일 결과 객체로 effect가 반복되어 선택값을 덮지 않도록 보호.
+    const appliedSomRef = useRef({ month: null, data: null });
+
+    useEffect(() => {
+        if (!somMonth) {
+            appliedSomRef.current = { month: null, data: null };
+            return;
+        }
+        if (!isSomSuccess) return;
+
+        if (appliedSomRef.current.month === somMonth &&
+            appliedSomRef.current.data === somCodeData) return;
+
+        appliedSomRef.current = { month: somMonth, data: somCodeData };
+        applySomCodes(somCodeData, somMonth);
+    }, [isSomSuccess, somCodeData, somMonth, applySomCodes]);
+
+    // SOM 월 변경: Search 상태 갱신 후 Fetch의 조회 월 갱신
+    const onSomMonthChange = useCallback((newMonth) => {
+        const month = handleSomMonthChange(newMonth);
+        setSomMonth(month);
+    }, [handleSomMonthChange, setSomMonth]);
+
+    // 조회 버튼: 현재 filters 기준으로 요청 파라미터 생성
+    const onSearch = useCallback(() => {
+        search(getSearchParams());
+    }, [search, getSearchParams]);
+
+    // 초기화: API 재조회 없이 Search가 저장한 최초값 복원
+    const onReset = useCallback(() => {
+        resetFilters();
+        setSomMonth(null); // 이전 SOM 결과가 초기화 후 다시 적용되지 않도록 중지
+        appliedSomRef.current = { month: null, data: null };
+        clearGrid(); // 기존 화면에서 초기화 시 그리드를 비우는 경우에만 유지
+    }, [resetFilters, setSomMonth, clearGrid]);
+
+    // 아래는 기존 퍼블리싱 JSX에 연결할 값만 표시한 예시입니다.
+    // 실제 컴포넌트 props 명칭/그리드 구성은 기존 RPA000Tab.jsx를 유지하세요.
+    return (
+        <>
+            {/* 기존 SearchFilterComp에 아래 값을 기존 prop 이름으로 전달
+                filters, setFilters, formMethods, somCodeList,
+                onSomMonthChange, onSearch, onReset
+            */}
+            {/* 기존 TableComp에 gridData, isLoading, isSearched 전달 */}
+        </>
+    );
+}
+```
+
+## 실제 프로젝트에 반영할 때 꼭 확인
+
+1. 위 return은 **설명용 자리표시자**입니다. 그대로 붙이면 검색 UI와 그리드가 표시되지 않습니다. 기존 Tab의 JSX를 그대로 두고 Hook/이벤트/useEffect 연결만 옮겨야 합니다.
+2. `useRPA000Search`는 **RPA000.jsx에서 호출**, `useRPA000Fetch`는 **Tab에서 호출**. `getPaneProps()`가 필요한 props를 전달해야 합니다.
+3. **중요:** 현재 메모장3 Search Hook은 `filters`를 단일 검색조건으로 사용합니다. SearchFilterComp의 값과 onChange가 `filters`/`setFilters`에 연결되어야 합니다. React Hook Form Controller만 사용 중이라면 이 Tab 문서만 추가해도 화면이 완성되지 않습니다.
+4. `applySomCodes`는 현재 `filters.somMonth`와 요청 월이 같을 때만 적용합니다. 사용자 입력값이 DatePicker 객체라면 `formatMonth` 비교가 일치하는지 확인해야 합니다.
+5. 초기화에서 `setSomMonth(null)`은 추가 SOM 조회를 막지만, **초기화 이후 다시 최초 SOM 월을 선택했을 때는 재조회할 수 있습니다.** 최초 옵션 목록은 Search Hook에 보관되어 있어 초기화 자체는 재조회하지 않습니다.
+6. `clearGrid()`는 현재 Fetch 예시에서 React Query 캐시의 `gridData`를 직접 지우지 않습니다. 기존 회사의 그리드 초기화 처리 방식에 맞춰 유지하거나 교체하세요.
+7. `initialAppliedRef`는 Tab 인스턴스 기준입니다. Tab이 언마운트 후 다시 마운트되면 재실행될 수 있으며, Search Hook의 `initialFiltersRef`도 함께 보호합니다.
+8. `fetchaaa01301/02/03`, API 결과의 `item.type/code/plnVer`는 메모장3에서 아직 실제 프로젝트 응답과 대조되지 않은 **예시**입니다.
