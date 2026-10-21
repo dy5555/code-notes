@@ -5,30 +5,6 @@
 ```jsx
 import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import dayjs from 'dayjs';
-import isoWeek from 'dayjs/plugin/isoWeek';
-import isoWeekYear from 'dayjs/plugin/isoWeekYear';
-
-dayjs.extend(isoWeek);
-dayjs.extend(isoWeekYear);
-
-// Hook 밖: 렌더링마다 재선언할 필요가 없는 순수 함수
-const formatMonth = (value) => {
-    if (!value) return null;
-    if (/^\d{6}$/.test(String(value))) return String(value);
-    const date = dayjs(value);
-    return date.isValid() ? date.format('YYYYMM') : null;
-};
-
-const formatWeek = (value) => {
-    if (!value) return null;
-    if (/^\d{6}$/.test(String(value))) return String(value);
-    const date = dayjs(value);
-    return date.isValid()
-        ? `${date.isoWeekYear()}${String(date.isoWeek()).padStart(2, '0')}`
-        : null;
-};
-
 const createInitialFilters = () => ({
     stockMonth: null,
     salesDemandWeek: null,
@@ -87,7 +63,7 @@ export function useRPA000Search() {
     // aaa02 결과를 전달받아 옵션 갱신 및 첫 코드 선택
     // 조회 요청에 사용한 월도 함께 받아, 현재 선택 월과 다른 늦은 응답은 무시
     const applySomCodes = useCallback((rows, requestedMonth) => {
-        if (formatMonth(filters.somMonth) !== requestedMonth) return;
+        if (String(filters.somMonth) !== String(requestedMonth)) return;
 
         // item.plnVer는 메모장2의 예시 응답 필드
         const options = (rows ?? []).map((item) => ({
@@ -101,7 +77,7 @@ export function useRPA000Search() {
         // null로 구분하므로 최초 옵션이 []여도 다시 덮어쓰지 않음
         if (initialSomCodeListRef.current === null &&
             initialFiltersRef.current !== null &&
-            requestedMonth === formatMonth(initialFiltersRef.current.somMonth)) {
+            String(requestedMonth) === String(initialFiltersRef.current.somMonth)) {
             initialSomCodeListRef.current = [...options];
             initialFiltersRef.current.somCd = options[0]?.value ?? null;
         }
@@ -111,7 +87,7 @@ export function useRPA000Search() {
     const handleSomMonthChange = useCallback((newMonth) => {
         setFilters((prev) => ({ ...prev, somMonth: newMonth, somCd: null }));
         setSomCodeList([]);
-        return formatMonth(newMonth); // Tab이 Fetch의 setSomMonth에 전달
+        return newMonth; // 날짜 변환 없이 Tab의 Fetch에 전달
     }, []);
 
     // 초기화: 저장한 최초값 복원, reset() 및 API 호출 없음
@@ -124,17 +100,8 @@ export function useRPA000Search() {
         setSomCodeList(initialSomCodeListRef.current ?? []);
     }, []);
 
-    const getSearchParams = useCallback(() => {
-        const params = filters;
-        return {
-            ...params,
-            stockMonth: formatMonth(params.stockMonth),
-            salesDemandWeek: formatWeek(params.salesDemandWeek),
-            somMonth: formatMonth(params.somMonth),
-            salesResultMonth: formatMonth(params.salesResultMonth),
-            inboundDemandWeek: formatWeek(params.inboundDemandWeek)
-        };
-    }, [filters]);
+    // 조회조건은 원본 상태 그대로 전달. API 직전에 Fetch에서 날짜 변환.
+    const getSearchParams = useCallback(() => ({ ...filters }), [filters]);
 
     return {
         filters,
@@ -163,7 +130,7 @@ export function useRPA000Search() {
 ## 확인이 필요한 실제 프로젝트 사항
 
 1. `item.type`, `item.code`, `item.plnVer`는 기존 문서의 **가상 응답 필드**. 실제 필드로 교체.
-2. 최초 월·주차는 API 응답값을 날짜 변환 없이 `setFilters(values)` 한 번으로 적용합니다. `applyInitialData()`가 Tab에 반환하는 최초 SOM 월도 원본값 그대로입니다. 초기화는 `setFilters(initial)`만 사용합니다. 메인 조회용 날짜 변환은 `getSearchParams()`에서 수행합니다. 단, SOM 코드 API가 YYYYMM을 요구한다면 Tab 또는 Fetch의 요청 경계에서만 형식을 맞춰야 합니다.
-3. `formatWeek`는 ISO 주차 기준 예시. 실제 업무 주차 규칙 확인.
+2. 최초 월·주차는 API 응답값을 날짜 변환 없이 `setFilters(values)` 한 번으로 적용합니다. `applyInitialData()`가 Tab에 반환하는 최초 SOM 월도 원본값 그대로입니다. 초기화는 `setFilters(initial)`만 사용합니다. 날짜 변환은 Search Hook에서 하지 않고 Fetch의 API 호출 직전에만 수행합니다.
+3. Fetch의 `formatWeek`는 ISO 주차 기준 예시. 실제 업무 주차 규칙 확인.
 4. SOM 옵션 조회 실패/재시도와 초기화의 순서가 겹치는 경우, Tab의 useEffect 조건을 함께 확인해야 함.
 5. **`filters`가 검색조건의 단일 기준입니다.** SearchFilterComp의 모든 입력 변경은 `setFilters`로 연결하고, 표시값도 `filters`에서 받아야 합니다. 기존 컴포넌트가 React Hook Form `Controller`/`getValues()`를 기준으로 동작한다면 이 코드만으로는 동기화되지 않으므로 SearchFilterComp 연결도 함께 조정해야 합니다. `formMethods`는 기존 props 호환을 위해 유지했습니다.
