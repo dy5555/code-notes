@@ -70,26 +70,27 @@ export default function RPA000Tab({
         setSomMonth(month);
     }, [handleSomMonthChange, setSomMonth]);
 
-    // 조회 버튼: 현재 filters 기준으로 요청 파라미터 생성
-    const onSearch = useCallback(() => {
+    // 기존 퍼블리싱 함수명 유지: 조회 버튼
+    const handleSearch = useCallback(() => {
         search(getSearchParams());
     }, [search, getSearchParams]);
 
-    // 초기화: API 재조회 없이 Search가 저장한 최초값 복원
-    const onReset = useCallback(() => {
+    // 기존 퍼블리싱 함수명 유지: 초기화 버튼 (API 재조회 없음)
+    const handleReset = useCallback(() => {
         resetFilters();
         setSomMonth(null); // 이전 SOM 결과가 초기화 후 다시 적용되지 않도록 중지
         appliedSomRef.current = { month: null, data: null };
         clearGrid(); // 기존 화면에서 초기화 시 그리드를 비우는 경우에만 유지
     }, [resetFilters, setSomMonth, clearGrid]);
 
+    // 기존 퍼블리싱의 handleSearch / handleReset 및 JSX prop 이름을 그대로 유지하세요.
     // 아래는 기존 퍼블리싱 JSX에 연결할 값만 표시한 예시입니다.
     // 실제 컴포넌트 props 명칭/그리드 구성은 기존 RPA000Tab.jsx를 유지하세요.
     return (
         <>
             {/* 기존 SearchFilterComp에 아래 값을 기존 prop 이름으로 전달
                 filters, setFilters, formMethods, somCodeList,
-                onSomMonthChange, onSearch, onReset
+                onSomMonthChange, handleSearch, handleReset
             */}
             {/* 기존 TableComp에 gridData, isLoading, isSearched 전달 */}
         </>
@@ -99,7 +100,7 @@ export default function RPA000Tab({
 
 ## 실제 프로젝트에 반영할 때 꼭 확인
 
-1. 위 return은 **설명용 자리표시자**입니다. 그대로 붙이면 검색 UI와 그리드가 표시되지 않습니다. 기존 Tab의 JSX를 그대로 두고 Hook/이벤트/useEffect 연결만 옮겨야 합니다.
+1. **기존 함수명 `handleSearch`, `handleReset` 유지.** 기존 JSX의 이벤트 prop 이름도 변경하지 마세요. 위 return은 **설명용 자리표시자**입니다. 그대로 붙이면 검색 UI와 그리드가 표시되지 않습니다. 기존 Tab의 JSX를 그대로 두고 Hook/이벤트/useEffect 연결만 옮겨야 합니다.
 2. `useRPA000Search`는 **RPA000.jsx에서 호출**, `useRPA000Fetch`는 **Tab에서 호출**. `getPaneProps()`가 필요한 props를 전달해야 합니다.
 3. **중요:** 현재 메모장3 Search Hook은 `filters`를 단일 검색조건으로 사용합니다. SearchFilterComp의 값과 onChange가 `filters`/`setFilters`에 연결되어야 합니다. React Hook Form Controller만 사용 중이라면 이 Tab 문서만 추가해도 화면이 완성되지 않습니다.
 4. `applySomCodes`는 현재 `filters.somMonth`와 요청 월이 같을 때만 적용합니다. 사용자 입력값이 DatePicker 객체라면 `formatMonth` 비교가 일치하는지 확인해야 합니다.
