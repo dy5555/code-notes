@@ -10,11 +10,11 @@ export default function SearchFilterComp({
     filters,
     formMethods,
     somCodeList,
-    onSomMonthChange,
-    handleSearch,
-    handleReset
+    onSomMonthChange
 }) {
     // 기존 필터 UI 및 폼 컴포넌트는 유지
+    // 실제 JSX에서 쓰는 props만 구조분해하세요. 조회/초기화 버튼이
+    // 이 컴포넌트 안에 있다면 기존 버튼 이벤트에 handleSearch/handleReset을 연결하세요.
     // SOM 월 필드의 RHF Controller render 내부에서만 다음처럼 연결:
     //
     // <DatePicker
@@ -42,9 +42,7 @@ SearchFilterComp.propTypes = {
     filters: PropTypes.object,
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
-    onSomMonthChange: PropTypes.func,
-    handleSearch: PropTypes.func,
-    handleReset: PropTypes.func
+    onSomMonthChange: PropTypes.func
 };
 ```
 
@@ -64,4 +62,5 @@ SearchFilterComp.jsx
 
 - **기존 RHF 바인딩을 유지**하세요. `onSomMonthChange`만 호출하고 `field.onChange`를 생략하면 폼의 SOM 월이 갱신되지 않을 수 있습니다.
 - 기존 `handleSomMonthChange`가 있다면 이름을 바꾸지 말고 그 안에서 전달받은 콜백을 호출하면 됩니다.
+- 조회/초기화 버튼이 이 컴포넌트 안에 있다면 `handleSearch`, `handleReset`을 props로 받아 실제 버튼에 연결하세요. 버튼이 다른 컴포넌트에 있다면 여기서 선언할 필요 없습니다.
 - 기존 검색/초기화 버튼의 타입과 이벤트 연결을 유지하세요. 이 문서의 `return`은 설명용이며 실제 화면을 렌더링하지 않습니다.
