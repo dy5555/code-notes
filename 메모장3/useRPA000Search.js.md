@@ -1,6 +1,6 @@
 # useRPA000Search.js — RHF 단일 조회조건 관리
 
-> 검색조건은 React Hook Form의 `formMethods`만 사용합니다. SearchFilterComp / SearchConditionForm에 동일한 `formMethods`를 통째로 전달하세요. API 호출과 날짜 변환은 Fetch Hook에서 처리합니다.
+> 기존 초기 필터 `const [filters] = useState(createInitialFilters)`는 유지하되, 화면의 변경값은 React Hook Form의 `formMethods`만 사용합니다. SearchFilterComp / SearchConditionForm에 동일한 `formMethods`를 통째로 전달하세요. API 호출과 날짜 변환은 Fetch Hook에서 처리합니다.
 
 ```jsx
 import { useState, useRef, useCallback } from 'react';
@@ -16,7 +16,9 @@ const createInitialFilters = () => ({
 });
 
 export function useRPA000Search() {
-    const formMethods = useForm({ defaultValues: createInitialFilters() });
+    // 기존 퍼블리싱의 초기 필터 상태는 유지 (변경 setter는 사용하지 않음)
+    const [filters] = useState(createInitialFilters);
+    const formMethods = useForm({ defaultValues: filters });
     const { reset, getValues, setValue } = formMethods;
     const [somCodeList, setSomCodeList] = useState([]);
     const initialFiltersRef = useRef(null);
@@ -95,6 +97,7 @@ export function useRPA000Search() {
     const getSearchParams = useCallback(() => ({ ...getValues() }), [getValues]);
 
     return {
+        filters,
         formMethods,
         somCodeList,
         applyInitialData,
@@ -108,6 +111,7 @@ export function useRPA000Search() {
 
 ## 기존 컴포넌트 연결 시 주의
 
+- 기존 `filters`는 초기값 용도로만 유지하고 `setFilters`는 추가하지 않습니다.
 - `SearchFilterComp`에 `formMethods`를 그대로 전달하고, 각 필드는 RHF `Controller`/`register` 등 기존 바인딩을 유지합니다.
 - SOM 월 필드의 기존 RHF `onChange`가 값을 반영한 뒤 `onSomMonthChange(newMonth)`도 호출해야 코드 목록을 다시 조회합니다. 이 콜백을 기존 RHF `onChange` 대신 넣으면 폼의 월 값이 갱신되지 않을 수 있습니다.
 - 조회는 `getSearchParams()`가 `getValues()`로 읽고, 날짜 변환은 Fetch에서만 합니다.
