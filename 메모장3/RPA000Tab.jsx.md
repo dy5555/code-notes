@@ -4,6 +4,7 @@
 
 ```jsx
 import { useEffect, useRef } from 'react';
+import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 import { useRPA000Fetch } from '../hooks/useRPA000Fetch';
 // 기존 SearchFilterComp, TableComp import는 유지
@@ -66,8 +67,8 @@ export default function RPA000Tab({
 
     // SOM 월 변경: 폼의 월 값은 RHF onChange가 반영; SOM 코드 초기화 및 Fetch 월 갱신
     const onSomMonthChange = (newMonth) => {
-        const month = handleSomMonthChange(newMonth);
-        setSomMonth(month);
+        handleSomMonthChange(newMonth);
+        setSomMonth(newMonth ? dayjs(newMonth).format('YYYYMM') : null);
     };
 
     // 기존 퍼블리싱 함수명 유지: 조회 버튼
@@ -117,7 +118,7 @@ RPA000Tab.propTypes = {
 2. `propTypes`는 **부모에서 전달받는 props**만 선언합니다. Tab 내부에서 만든 `handleSearch`, `handleReset`, `onSomMonthChange`, `appliedSomRef`는 Tab의 propTypes에 넣지 않습니다. 실제 `tabId` 자료형이 숫자이거나 필수라면 기존 정의에 맞춰 조정하세요.
 3. `useRPA000Search`는 **RPA000.jsx에서 호출**, `useRPA000Fetch`는 **Tab에서 호출**. `getPaneProps()`가 필요한 props를 전달해야 합니다.
 3. **중요:** 조회는 Search Hook의 `getSearchParams()`가 `formMethods.getValues()`로 화면의 현재 값을 읽습니다. SearchFilterComp / SearchConditionForm이 동일한 `formMethods`를 사용해야 합니다. SOM 월 필드는 RHF 기존 `onChange`로 값을 반영하면서 `onSomMonthChange`도 호출해 옵션을 다시 조회해야 합니다.
-4. `applySomCodes`는 현재 SOM 월과 요청 월의 원본값을 비교합니다. 날짜 변환은 Fetch에서 API 호출 직전에만 수행합니다. DatePicker가 객체를 반환하면 비교/쿼리 키의 일관성을 별도로 확인해야 합니다.
+4. SOM 코드 조회용 `somMonth`는 Tab에서 `YYYYMM` 문자열로 변환합니다. RHF DatePicker 값은 그대로 유지합니다. `applySomCodes`는 요청 월과 현재 RHF 월을 `YYYYMM` 기준으로 비교합니다.
 5. 초기화에서 `setSomMonth(null)`은 추가 SOM 조회를 막지만, **초기화 이후 다시 최초 SOM 월을 선택했을 때는 재조회할 수 있습니다.** 최초 옵션 목록은 Search Hook에 보관되어 있어 초기화 자체는 재조회하지 않습니다.
 6. `clearGrid()`는 현재 Fetch 예시에서 React Query 캐시의 `rowData`를 직접 지우지 않습니다. 기존 회사의 그리드 초기화 처리 방식에 맞춰 유지하거나 교체하세요.
 7. `initialAppliedRef`는 Tab 인스턴스 기준입니다. Tab이 언마운트 후 다시 마운트되면 재실행될 수 있으며, Search Hook의 `initialFiltersRef`도 함께 보호합니다.
