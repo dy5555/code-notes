@@ -51,7 +51,7 @@ export function useRPA000Fetch(tabId) {
 
     // aaa03: 조회 버튼으로 실행하는 메인 그리드
     const {
-        data: gridData = [],
+        data: rowData = [],
         isLoading
     } = useQuery({
         queryKey: ['RPA000_GRID', tabId, searchParams, trigger],
@@ -86,7 +86,7 @@ export function useRPA000Fetch(tabId) {
         somCodeData,
         isSomSuccess,
         somMonth,
-        gridData,
+        rowData,
         isLoading,
         isSearched,
         setSomMonth,
@@ -106,7 +106,7 @@ RPA000Tab.jsx
   └─ useRPA000Fetch(tabId)
        ├─ aaa01 → initialData → applyInitialData()
        ├─ aaa02 → somCodeData → applySomCodes()
-       └─ aaa03 → gridData / isLoading → TableComp
+       └─ aaa03 → rowData / isLoading → TableComp
 ```
 
 Tab의 최초 데이터/옵션 반영은 `isInitialSuccess`, `isSomSuccess`로 성공 상태를 확인한 후 실행합니다. `isSomSuccess`가 true라도 초기화 직후 `somMonth`가 null이면 옵션을 적용하지 않아야 합니다. 초기화 이벤트에서는 `resetFilters()`와 `setSomMonth(null)`를 함께 호출하면 추가 SOM API 요청 없이 Fetch 쿼리를 비활성화할 수 있습니다.
