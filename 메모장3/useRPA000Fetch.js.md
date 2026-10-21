@@ -5,6 +5,30 @@
 ```jsx
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
+import isoWeekYear from 'dayjs/plugin/isoWeekYear';
+
+dayjs.extend(isoWeek);
+dayjs.extend(isoWeekYear);
+
+// API 요청 직전에서만 날짜 형식 변환
+const formatMonth = (value) => {
+    if (!value) return null;
+    if (/^\\d{6}$/.test(String(value))) return String(value);
+    const date = dayjs(value);
+    return date.isValid() ? date.format('YYYYMM') : null;
+};
+
+const formatWeek = (value) => {
+    if (!value) return null;
+    if (/^\\d{6}$/.test(String(value))) return String(value);
+    const date = dayjs(value);
+    return date.isValid()
+        ? `${date.isoWeekYear()}${String(date.isoWeek()).padStart(2, '0')}`
+        : null;
+};
+
 
 // 실제 프로젝트에서 만들어 둔 API 함수 import
 // import { fetchaaa01301, fetchaaa01302, fetchaaa01303 } from '실제 API 경로';
@@ -39,7 +63,7 @@ export function useRPA000Fetch(tabId) {
         queryKey: ['RPA000_SOM', tabId, somMonth],
         queryFn: async () => {
             if (!somMonth) return [];
-            const result = await fetchaaa01302({ somMonth });
+            const result = await fetchaaa01302({ somMonth: formatMonth(somMonth) });
             return result.data ?? [];
         },
         enabled: !!somMonth,
@@ -57,7 +81,15 @@ export function useRPA000Fetch(tabId) {
         queryKey: ['RPA000_GRID', tabId, searchParams, searchTrigger],
         queryFn: async () => {
             if (!searchParams) return [];
-            const result = await fetchaaa01303(searchParams);
+            const params = {
+                ...searchParams,
+                stockMonth: formatMonth(searchParams.stockMonth),
+                salesDemandWeek: formatWeek(searchParams.salesDemandWeek),
+                somMonth: formatMonth(searchParams.somMonth),
+                salesResultMonth: formatMonth(searchParams.salesResultMonth),
+                inboundDemandWeek: formatWeek(searchParams.inboundDemandWeek)
+            };
+            const result = await fetchaaa01303(params);
             return result.data ?? [];
         },
         enabled: !!searchParams,
@@ -108,6 +140,8 @@ RPA000Tab.jsx
        ├─ aaa02 → somCodeData → applySomCodes()
        └─ aaa03 → rowData / isLoading → TableComp
 ```
+
+검색조건 및 SOM 월은 원본값으로 상태 관리하며, **aaa02/aaa03 API 호출 직전에서만 날짜를 변환**합니다. 월은 YYYYMM, 주차는 ISO YYYYWW 예시이며 실제 업무 주차 규칙을 확인해야 합니다.
 
 Tab의 최초 데이터/옵션 반영은 `isInitialSuccess`, `isSomSuccess`로 성공 상태를 확인한 후 실행합니다. `isSomSuccess`가 true라도 초기화 직후 `somMonth`가 null이면 옵션을 적용하지 않아야 합니다. 초기화 이벤트에서는 `resetFilters()`와 `setSomMonth(null)`를 함께 호출하면 추가 SOM API 요청 없이 Fetch 쿼리를 비활성화할 수 있습니다.
 
