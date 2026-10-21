@@ -158,7 +158,7 @@ export function useRPA000Search() {
 - SOM 코드 조회 성공 시 `applySomCodes(somCodeData, somMonth)` 호출. 단, **조회 결과가 확정된 현재 월**에 대해서만 적용. React Query의 `isSuccess`와 `somMonth`를 확인.
 - SOM 월 변경 시 `setSomMonth(handleSomMonthChange(newMonth))`.
 - 초기화 시 `resetFilters()`를 호출하고, Fetch의 `setSomMonth(null)`도 호출해 이전 SOM 조회 상태를 비활성화. **기존 캐시/응답을 다시 폼에 적용하는 effect가 없도록 조건 확인**. 이후 사용자가 SOM 월을 선택하면 다시 조회 가능.
-- 메인 조회는 `search(getSearchParams())` → `gridData`를 TableComp로 전달.
+- 메인 조회는 `search(getSearchParams())` → `rowData`를 TableComp로 전달.
 
 ## 확인이 필요한 실제 프로젝트 사항
 
