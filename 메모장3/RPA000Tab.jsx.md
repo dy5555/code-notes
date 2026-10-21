@@ -4,6 +4,7 @@
 
 ```jsx
 import { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { useRPA000Fetch } from '../hooks/useRPA000Fetch';
 // 기존 SearchFilterComp, TableComp import는 유지
 
@@ -96,12 +97,27 @@ export default function RPA000Tab({
         </>
     );
 }
+
+// RPA000.jsx에서 RPA000Tab.jsx로 전달하는 props만 선언
+RPA000Tab.propTypes = {
+    tabId: PropTypes.string,
+    filters: PropTypes.object,
+    setFilters: PropTypes.func,
+    formMethods: PropTypes.object,
+    somCodeList: PropTypes.array,
+    applyInitialData: PropTypes.func,
+    applySomCodes: PropTypes.func,
+    handleSomMonthChange: PropTypes.func,
+    resetFilters: PropTypes.func,
+    getSearchParams: PropTypes.func
+};
 ```
 
 ## 실제 프로젝트에 반영할 때 꼭 확인
 
 1. **기존 함수명 `handleSearch`, `handleReset` 및 `async` 선언 방식 유지.** 기존 JSX의 이벤트 prop 이름도 변경하지 마세요. 위 return은 **설명용 자리표시자**입니다. 그대로 붙이면 검색 UI와 그리드가 표시되지 않습니다. 기존 Tab의 JSX를 그대로 두고 Hook/이벤트/useEffect 연결만 옮겨야 합니다.
-2. `useRPA000Search`는 **RPA000.jsx에서 호출**, `useRPA000Fetch`는 **Tab에서 호출**. `getPaneProps()`가 필요한 props를 전달해야 합니다.
+2. `propTypes`는 **부모에서 전달받는 props**만 선언합니다. Tab 내부에서 만든 `handleSearch`, `handleReset`, `onSomMonthChange`, `appliedSomRef`는 Tab의 propTypes에 넣지 않습니다. 실제 `tabId` 자료형이 숫자이거나 필수라면 기존 정의에 맞춰 조정하세요.
+3. `useRPA000Search`는 **RPA000.jsx에서 호출**, `useRPA000Fetch`는 **Tab에서 호출**. `getPaneProps()`가 필요한 props를 전달해야 합니다.
 3. **중요:** 현재 메모장3 Search Hook은 `filters`를 단일 검색조건으로 사용합니다. SearchFilterComp의 값과 onChange가 `filters`/`setFilters`에 연결되어야 합니다. React Hook Form Controller만 사용 중이라면 이 Tab 문서만 추가해도 화면이 완성되지 않습니다.
 4. `applySomCodes`는 현재 `filters.somMonth`와 요청 월이 같을 때만 적용합니다. 사용자 입력값이 DatePicker 객체라면 `formatMonth` 비교가 일치하는지 확인해야 합니다.
 5. 초기화에서 `setSomMonth(null)`은 추가 SOM 조회를 막지만, **초기화 이후 다시 최초 SOM 월을 선택했을 때는 재조회할 수 있습니다.** 최초 옵션 목록은 Search Hook에 보관되어 있어 초기화 자체는 재조회하지 않습니다.
