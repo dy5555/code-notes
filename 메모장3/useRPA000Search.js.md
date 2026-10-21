@@ -18,7 +18,7 @@ const createInitialFilters = () => ({
 export function useRPA000Search() {
     // 기존 퍼블리싱의 초기 필터 상태는 유지 (변경 setter는 사용하지 않음)
     const [filters] = useState(createInitialFilters);
-    const formMethods = useForm({ defaultValues: filters });
+    const formMethods = useForm({ defaultValues: createInitialFilters() });
     const { reset, getValues, setValue } = formMethods;
     const [somCodeList, setSomCodeList] = useState([]);
     const initialFiltersRef = useRef(null);
