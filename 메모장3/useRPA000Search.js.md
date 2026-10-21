@@ -1,6 +1,6 @@
 # useRPA000Search.js — Fetch 분리 수정본
 
-> API 호출 없음. `filters`를 검색조건의 기준으로 사용하며, 최초값/초기 SOM 코드 목록을 보관하고 초기화를 담당. **SearchFilterComp가 `filters` 기반으로 입력값을 관리하는지 확인 필요.**
+> API 호출 없음. 화면의 검색조건은 `formMethods`(React Hook Form)에서 읽고, `filters`는 SOM 월 연동용 상태로 유지합니다. 최초값/초기 SOM 코드 목록을 보관하고 초기화합니다.
 
 ```jsx
 import { useState, useRef, useCallback } from 'react';
@@ -23,6 +23,7 @@ export function useRPA000Search() {
     const initialSomCodeListRef = useRef(null); // null=아직 저장 안 함, []=정상적인 빈 결과
 
     const formMethods = useForm({ defaultValues: createInitialFilters() });
+    const { reset, getValues, setValue } = formMethods;
 
     // aaa01 결과를 외부(Tab)에서 전달받아 최초 한 번만 적용
     const applyInitialData = useCallback((rows) => {
@@ -56,9 +57,9 @@ export function useRPA000Search() {
 
         initialFiltersRef.current = { ...values };
         setFilters({ ...values });
-        // 최초 조회값은 filters에 한 번만 반영. 개별 setValue() 사용 안 함.
+        reset(values); // 화면 폼에도 최초 조회조건 반영
         return values.somMonth; // 최초 SOM 월도 변환 없이 그대로 전달
-    }, []);
+    }, [reset]);
 
     // aaa02 결과를 전달받아 옵션 갱신 및 첫 코드 선택
     // 조회 요청에 사용한 월도 함께 받아, 현재 선택 월과 다른 늦은 응답은 무시
@@ -73,6 +74,7 @@ export function useRPA000Search() {
 
         setSomCodeList(options);
         setFilters((prev) => ({ ...prev, somCd: options[0]?.value ?? null }));
+        setValue('somCd', options[0]?.value ?? null);
 
         // null로 구분하므로 최초 옵션이 []여도 다시 덮어쓰지 않음
         if (initialSomCodeListRef.current === null &&
@@ -81,27 +83,29 @@ export function useRPA000Search() {
             initialSomCodeListRef.current = [...options];
             initialFiltersRef.current.somCd = options[0]?.value ?? null;
         }
-    }, [filters.somMonth]);
+    }, [filters.somMonth, setValue]);
 
     // SOM 월 변경: API 호출 없이 현재 선택 상태만 변경
     const handleSomMonthChange = useCallback((newMonth) => {
         setFilters((prev) => ({ ...prev, somMonth: newMonth, somCd: null }));
+        setValue('somMonth', newMonth);
+        setValue('somCd', null);
         setSomCodeList([]);
         return newMonth; // 날짜 변환 없이 Tab의 Fetch에 전달
-    }, []);
+    }, [setValue]);
 
-    // 초기화: 저장한 최초값 복원, reset() 및 API 호출 없음
+    // 초기화: 저장한 최초값을 폼과 SOM 상태에 복원 (API 재호출 없음)
     const resetFilters = useCallback(() => {
         if (initialFiltersRef.current === null) return;
 
         const initial = { ...initialFiltersRef.current };
-        // 초기화 버튼에서만 filters 복원. reset()/setValue() 사용 안 함.
         setFilters(initial);
+        reset(initial);
         setSomCodeList(initialSomCodeListRef.current ?? []);
-    }, []);
+    }, [reset]);
 
-    // 조회조건은 원본 상태 그대로 전달. API 직전에 Fetch에서 날짜 변환.
-    const getSearchParams = useCallback(() => ({ ...filters }), [filters]);
+    // 조회 시 화면에서 수정한 폼 값을 읽음. 날짜 변환은 Fetch의 API 직전에서만 수행.
+    const getSearchParams = useCallback(() => ({ ...getValues() }), [getValues]);
 
     return {
         filters,
@@ -130,7 +134,7 @@ export function useRPA000Search() {
 ## 확인이 필요한 실제 프로젝트 사항
 
 1. `item.type`, `item.code`, `item.plnVer`는 기존 문서의 **가상 응답 필드**. 실제 필드로 교체.
-2. 최초 월·주차는 API 응답값을 날짜 변환 없이 `setFilters(values)` 한 번으로 적용합니다. `applyInitialData()`가 Tab에 반환하는 최초 SOM 월도 원본값 그대로입니다. 초기화는 `setFilters(initial)`만 사용합니다. 날짜 변환은 Search Hook에서 하지 않고 Fetch의 API 호출 직전에만 수행합니다.
+2. 최초 월·주차는 `setFilters(values)`와 `reset(values)`로 SOM 상태 및 화면 폼에 함께 반영합니다. 초기화도 `setFilters(initial)`와 `reset(initial)`로 복원합니다. 날짜 변환은 Fetch의 API 호출 직전에만 수행합니다.
 3. Fetch의 `formatWeek`는 ISO 주차 기준 예시. 실제 업무 주차 규칙 확인.
 4. SOM 옵션 조회 실패/재시도와 초기화의 순서가 겹치는 경우, Tab의 useEffect 조건을 함께 확인해야 함.
-5. **`filters`가 검색조건의 단일 기준입니다.** SearchFilterComp의 모든 입력 변경은 `setFilters`로 연결하고, 표시값도 `filters`에서 받아야 합니다. 기존 컴포넌트가 React Hook Form `Controller`/`getValues()`를 기준으로 동작한다면 이 코드만으로는 동기화되지 않으므로 SearchFilterComp 연결도 함께 조정해야 합니다. `formMethods`는 기존 props 호환을 위해 유지했습니다.
+5. **조회조건은 `formMethods.getValues()`가 기준입니다.** SearchFilterComp / SearchConditionForm이 전달받은 동일한 `formMethods`를 사용해야 화면 변경값이 조회에 반영됩니다. `filters`는 SOM 연동을 위한 상태로 유지하며 SOM 변경 시 `setValue()`로 폼에도 반영합니다. React Hook Form 기본 함수명은 `setValues`가 아닌 `setValue`(단수)입니다.
