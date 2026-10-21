@@ -69,17 +69,8 @@ export function useRPA000Search() {
         return values.somMonth;
     }, [reset]);
 
-    // aaa02: 현재 SOM 월에 해당하는 옵션만 반영
+    // aaa02: SOM 코드 조회 결과를 옵션에 반영 (월 비교/변환 없음)
     const applySomCodes = useCallback((rows, requestedMonth) => {
-        const currentMonth = getValues('somMonth');
-        const currentMonthKey = dayjs.isDayjs(currentMonth)
-            ? currentMonth.format('YYYYMM')
-            : String(currentMonth);
-        const requestedMonthKey = dayjs.isDayjs(requestedMonth)
-            ? requestedMonth.format('YYYYMM')
-            : String(requestedMonth);
-        if (currentMonthKey !== requestedMonthKey) return;
-
         // item.plnVer는 예시. 실제 응답 필드에 맞추세요.
         const options = (rows ?? []).map((item) => ({
             label: item.plnVer,
@@ -96,7 +87,7 @@ export function useRPA000Search() {
             initialSomCodeListRef.current = [...options];
             initialFiltersRef.current.somCd = firstCode;
         }
-    }, [getValues, setValue]);
+    }, [setValue]);
 
     // SOM 월 변경: 월 값은 SearchConditionForm의 RHF 바인딩이 변경함.
     // 이 함수는 SOM 코드 선택값과 옵션만 초기화.
