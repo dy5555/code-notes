@@ -119,7 +119,7 @@ RPA000Tab.propTypes = {
 2. `propTypes`는 **부모에서 전달받는 props**만 선언합니다. Tab 내부에서 만든 `handleSearch`, `handleReset`, `onSomMonthChange`, `appliedSomRef`는 Tab의 propTypes에 넣지 않습니다. 실제 `tabId` 자료형이 숫자이거나 필수라면 기존 정의에 맞춰 조정하세요.
 3. `useRPA000Search`는 **RPA000.jsx에서 호출**, `useRPA000Fetch`는 **Tab에서 호출**. `getPaneProps()`가 필요한 props를 전달해야 합니다.
 3. **중요:** 현재 메모장3 Search Hook은 `filters`를 단일 검색조건으로 사용합니다. SearchFilterComp의 값과 onChange가 `filters`/`setFilters`에 연결되어야 합니다. React Hook Form Controller만 사용 중이라면 이 Tab 문서만 추가해도 화면이 완성되지 않습니다.
-4. `applySomCodes`는 현재 `filters.somMonth`와 요청 월이 같을 때만 적용합니다. 사용자 입력값이 DatePicker 객체라면 `formatMonth` 비교가 일치하는지 확인해야 합니다.
+4. `applySomCodes`는 현재 SOM 월과 요청 월의 원본값을 비교합니다. 날짜 변환은 Fetch에서 API 호출 직전에만 수행합니다. DatePicker가 객체를 반환하면 비교/쿼리 키의 일관성을 별도로 확인해야 합니다.
 5. 초기화에서 `setSomMonth(null)`은 추가 SOM 조회를 막지만, **초기화 이후 다시 최초 SOM 월을 선택했을 때는 재조회할 수 있습니다.** 최초 옵션 목록은 Search Hook에 보관되어 있어 초기화 자체는 재조회하지 않습니다.
 6. `clearGrid()`는 현재 Fetch 예시에서 React Query 캐시의 `rowData`를 직접 지우지 않습니다. 기존 회사의 그리드 초기화 처리 방식에 맞춰 유지하거나 교체하세요.
 7. `initialAppliedRef`는 Tab 인스턴스 기준입니다. Tab이 언마운트 후 다시 마운트되면 재실행될 수 있으며, Search Hook의 `initialFiltersRef`도 함께 보호합니다.
