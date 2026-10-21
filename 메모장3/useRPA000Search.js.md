@@ -1,6 +1,6 @@
 # useRPA000Search.js — Fetch 분리 수정본
 
-> 기존 퍼블리싱 구조 유지. API 호출 없음. 최초값/초기 SOM 코드 목록을 보관하고, 검색조건 변경 및 초기화만 담당.
+> API 호출 없음. `filters`를 검색조건의 기준으로 사용하며, 최초값/초기 SOM 코드 목록을 보관하고 초기화를 담당. **SearchFilterComp가 `filters` 기반으로 입력값을 관리하는지 확인 필요.**
 
 ```jsx
 import { useState, useRef, useCallback } from 'react';
@@ -47,7 +47,6 @@ export function useRPA000Search() {
     const initialSomCodeListRef = useRef(null); // null=아직 저장 안 함, []=정상적인 빈 결과
 
     const formMethods = useForm({ defaultValues: createInitialFilters() });
-    const { setValue, getValues } = formMethods;
 
     // aaa01 결과를 외부(Tab)에서 전달받아 최초 한 번만 적용
     const applyInitialData = useCallback((rows) => {
@@ -81,20 +80,14 @@ export function useRPA000Search() {
 
         initialFiltersRef.current = { ...values };
         setFilters({ ...values });
-        // 최초 1회만 각 검색조건 설정 (공통 반복 setValue 함수 사용 안 함)
-        setValue('stockMonth', values.stockMonth);
-        setValue('salesDemandWeek', values.salesDemandWeek);
-        setValue('somMonth', values.somMonth);
-        setValue('somCd', values.somCd);
-        setValue('salesResultMonth', values.salesResultMonth);
-        setValue('inboundDemandWeek', values.inboundDemandWeek);
+        // 최초 조회값은 filters에 한 번만 반영. 개별 setValue() 사용 안 함.
         return formatMonth(values.somMonth);
-    }, [setValue]);
+    }, []);
 
     // aaa02 결과를 전달받아 옵션 갱신 및 첫 코드 선택
     // 조회 요청에 사용한 월도 함께 받아, 현재 선택 월과 다른 늦은 응답은 무시
     const applySomCodes = useCallback((rows, requestedMonth) => {
-        if (formatMonth(getValues('somMonth')) !== requestedMonth) return;
+        if (formatMonth(filters.somMonth) !== requestedMonth) return;
 
         // item.plnVer는 메모장2의 예시 응답 필드
         const options = (rows ?? []).map((item) => ({
@@ -103,7 +96,7 @@ export function useRPA000Search() {
         }));
 
         setSomCodeList(options);
-        setValue('somCd', options[0]?.value ?? null);
+        setFilters((prev) => ({ ...prev, somCd: options[0]?.value ?? null }));
 
         // null로 구분하므로 최초 옵션이 []여도 다시 덮어쓰지 않음
         if (initialSomCodeListRef.current === null &&
@@ -112,34 +105,27 @@ export function useRPA000Search() {
             initialSomCodeListRef.current = [...options];
             initialFiltersRef.current.somCd = options[0]?.value ?? null;
         }
-    }, [getValues, setValue]);
+    }, [filters.somMonth]);
 
     // SOM 월 변경: API 호출 없이 현재 선택 상태만 변경
     const handleSomMonthChange = useCallback((newMonth) => {
-        setValue('somMonth', newMonth);
-        setValue('somCd', null);
+        setFilters((prev) => ({ ...prev, somMonth: newMonth, somCd: null }));
         setSomCodeList([]);
         return formatMonth(newMonth); // Tab이 Fetch의 setSomMonth에 전달
-    }, [setValue]);
+    }, []);
 
     // 초기화: 저장한 최초값 복원, reset() 및 API 호출 없음
     const resetFilters = useCallback(() => {
         if (initialFiltersRef.current === null) return;
 
         const initial = { ...initialFiltersRef.current };
-        // 초기화 버튼에서만 실행. reset() 또는 전체 필드 반복 함수 사용 안 함
-        setValue('stockMonth', initial.stockMonth);
-        setValue('salesDemandWeek', initial.salesDemandWeek);
-        setValue('somMonth', initial.somMonth);
-        setValue('somCd', initial.somCd);
-        setValue('salesResultMonth', initial.salesResultMonth);
-        setValue('inboundDemandWeek', initial.inboundDemandWeek);
+        // 초기화 버튼에서만 filters 복원. reset()/setValue() 사용 안 함.
         setFilters(initial);
         setSomCodeList(initialSomCodeListRef.current ?? []);
-    }, [setValue]);
+    }, []);
 
     const getSearchParams = useCallback(() => {
-        const params = getValues();
+        const params = filters;
         return {
             ...params,
             stockMonth: formatMonth(params.stockMonth),
@@ -148,10 +134,11 @@ export function useRPA000Search() {
             salesResultMonth: formatMonth(params.salesResultMonth),
             inboundDemandWeek: formatWeek(params.inboundDemandWeek)
         };
-    }, [getValues]);
+    }, [filters]);
 
     return {
         filters,
+        setFilters,
         formMethods,
         somCodeList,
         applyInitialData,
@@ -176,7 +163,7 @@ export function useRPA000Search() {
 ## 확인이 필요한 실제 프로젝트 사항
 
 1. `item.type`, `item.code`, `item.plnVer`는 기존 문서의 **가상 응답 필드**. 실제 필드로 교체.
-2. 최초 월·주차는 최초 한 번만 개별 `setValue()`로 적용합니다. 초기화도 버튼 클릭 시 개별 적용하며 `reset()`/공통 반복 함수는 사용하지 않습니다. 단, 기존 DatePicker가 문자열을 정상 표시하는지 확인하세요. 날짜 변환은 `getSearchParams()`에서 검색 API 요청을 만들 때만 수행합니다.
+2. 최초 월·주차는 `setFilters(values)` 한 번으로 적용합니다. 초기화도 `setFilters(initial)`만 사용합니다. 날짜 변환은 `getSearchParams()`에서 검색 API 요청을 만들 때만 수행합니다.
 3. `formatWeek`는 ISO 주차 기준 예시. 실제 업무 주차 규칙 확인.
 4. SOM 옵션 조회 실패/재시도와 초기화의 순서가 겹치는 경우, Tab의 useEffect 조건을 함께 확인해야 함.
-5. 기존 `filters` 상태는 퍼블리싱 호환을 위해 유지. 실제 폼 입력의 현재값은 `formMethods`가 관리.
+5. **`filters`가 검색조건의 단일 기준입니다.** SearchFilterComp의 모든 입력 변경은 `setFilters`로 연결하고, 표시값도 `filters`에서 받아야 합니다. 기존 컴포넌트가 React Hook Form `Controller`/`getValues()`를 기준으로 동작한다면 이 코드만으로는 동기화되지 않으므로 SearchFilterComp 연결도 함께 조정해야 합니다. `formMethods`는 기존 props 호환을 위해 유지했습니다.
