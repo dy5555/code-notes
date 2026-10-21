@@ -81,7 +81,7 @@ export function useRPA000Search() {
         initialFiltersRef.current = { ...values };
         setFilters({ ...values });
         // 최초 조회값은 filters에 한 번만 반영. 개별 setValue() 사용 안 함.
-        return formatMonth(values.somMonth);
+        return values.somMonth; // 최초 SOM 월도 변환 없이 그대로 전달
     }, []);
 
     // aaa02 결과를 전달받아 옵션 갱신 및 첫 코드 선택
@@ -163,7 +163,7 @@ export function useRPA000Search() {
 ## 확인이 필요한 실제 프로젝트 사항
 
 1. `item.type`, `item.code`, `item.plnVer`는 기존 문서의 **가상 응답 필드**. 실제 필드로 교체.
-2. 최초 월·주차는 `setFilters(values)` 한 번으로 적용합니다. 초기화도 `setFilters(initial)`만 사용합니다. 날짜 변환은 `getSearchParams()`에서 검색 API 요청을 만들 때만 수행합니다.
+2. 최초 월·주차는 API 응답값을 날짜 변환 없이 `setFilters(values)` 한 번으로 적용합니다. `applyInitialData()`가 Tab에 반환하는 최초 SOM 월도 원본값 그대로입니다. 초기화는 `setFilters(initial)`만 사용합니다. 메인 조회용 날짜 변환은 `getSearchParams()`에서 수행합니다. 단, SOM 코드 API가 YYYYMM을 요구한다면 Tab 또는 Fetch의 요청 경계에서만 형식을 맞춰야 합니다.
 3. `formatWeek`는 ISO 주차 기준 예시. 실제 업무 주차 규칙 확인.
 4. SOM 옵션 조회 실패/재시도와 초기화의 순서가 겹치는 경우, Tab의 useEffect 조건을 함께 확인해야 함.
 5. **`filters`가 검색조건의 단일 기준입니다.** SearchFilterComp의 모든 입력 변경은 `setFilters`로 연결하고, 표시값도 `filters`에서 받아야 합니다. 기존 컴포넌트가 React Hook Form `Controller`/`getValues()`를 기준으로 동작한다면 이 코드만으로는 동기화되지 않으므로 SearchFilterComp 연결도 함께 조정해야 합니다. `formMethods`는 기존 props 호환을 위해 유지했습니다.
