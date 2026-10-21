@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 export function useRPA000Fetch(tabId) {
     const [somMonth, setSomMonth] = useState(null);
     const [searchParams, setSearchParams] = useState(null);
-    const [trigger, setTrigger] = useState(0);
+    const [searchTrigger, setSearchTrigger] = useState(0);
     const [isSearched, setIsSearched] = useState(false);
 
     // aaa01: 최초 월·주차
@@ -54,7 +54,7 @@ export function useRPA000Fetch(tabId) {
         data: rowData = [],
         isLoading
     } = useQuery({
-        queryKey: ['RPA000_GRID', tabId, searchParams, trigger],
+        queryKey: ['RPA000_GRID', tabId, searchParams, searchTrigger],
         queryFn: async () => {
             if (!searchParams) return [];
             const result = await fetchaaa01303(searchParams);
@@ -69,7 +69,7 @@ export function useRPA000Fetch(tabId) {
 
     const search = (params) => {
         setSearchParams(params);
-        setTrigger((prev) => prev + 1);
+        setSearchTrigger((prev) => prev + 1);
         setIsSearched(true);
     };
 
