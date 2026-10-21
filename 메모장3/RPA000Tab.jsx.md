@@ -11,6 +11,7 @@ import { useRPA000Fetch } from '../hooks/useRPA000Fetch';
 export default function RPA000Tab({
     tabId,
     // RPA000.jsx에서 useRPA000Search()를 호출하고 getPaneProps()로 전달
+    filters,
     formMethods,
     somCodeList,
     applyInitialData,
@@ -88,7 +89,7 @@ export default function RPA000Tab({
     return (
         <>
             {/* 기존 SearchFilterComp에 아래 값을 기존 prop 이름으로 전달
-                formMethods, somCodeList,
+                filters, formMethods, somCodeList,
                 onSomMonthChange, handleSearch, handleReset
             */}
             {/* 기존 TableComp에 rowData, isLoading, isSearched 전달 */}
@@ -99,6 +100,7 @@ export default function RPA000Tab({
 // RPA000.jsx에서 RPA000Tab.jsx로 전달하는 props만 선언
 RPA000Tab.propTypes = {
     tabId: PropTypes.string,
+    filters: PropTypes.object,
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
     applyInitialData: PropTypes.func,
