@@ -6,6 +6,7 @@
 import { useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
+import { Modal } from 'antd';
 import { useRPA000Fetch } from '../hooks/useRPA000Fetch';
 // 기존 SearchFilterComp, TableComp import는 유지
 
@@ -86,24 +87,33 @@ export default function RPA000Tab({
         clearGrid(); // 기존 화면에서 초기화 시 그리드를 비우는 경우에만 유지
     };
 
-    // 전체 조회 결과 중 보정 가능(Y) 행만 서버에 한 번 전송
-    const handleBatchAdjust = async () => {
+    // 보정 가능 행만 확인 후 전송. 취소 시 API를 호출하지 않음.
+    const handleBatchAdjust = () => {
         if (isAdjusting) return;
+
         const targets = (rowData ?? [])
             .filter((item) => item.gnlCrrYn === 'Y')
             .map((item) => ({
                 salesProdId: item.salesProdId,
                 tobeRpSomcd: item.tobeRpSomcd
             }));
+
         if (targets.length === 0) return;
 
-        try {
-            await batchAdjust(targets);
-            search(getSearchParams()); // 보정 성공 후 그리드/건수 갱신
-        } catch (error) {
-            // 실제 프로젝트의 공통 오류 알림 처리 연결
-            throw error;
-        }
+        Modal.confirm({
+            title: '일괄보정 확인',
+            content: 'SOM CD 일괄보정을 진행하시겠습니까?',
+            okText: '확인',
+            cancelText: '취소',
+            onOk: async () => {
+                await batchAdjust({ adjustList: targets });
+                search(getSearchParams()); // 성공 후 그리드/건수 재조회
+                Modal.success({
+                    title: '알림',
+                    content: 'SOM CD 일괄 보정을 완료하였습니다.'
+                });
+            }
+        });
     };
 
     // 기존 퍼블리싱의 handleSearch / handleReset 및 JSX prop 이름을 그대로 유지하세요.
@@ -147,3 +157,5 @@ RPA000Tab.propTypes = {
 8. `fetchaaa01301/02/03`, API 결과의 `item.type/code/plnVer`는 메모장3에서 아직 실제 프로젝트 응답과 대조되지 않은 **예시**입니다.
 
 일괄보정은 현재 `rowData` 전체에서 `gnlCrrYn === 'Y'`인 행만 대상으로 합니다. Java는 전달받은 목록을 FOR 반복하여 `salesProdId`, `tobeRpSomcd`로 프로시저를 호출해야 합니다. 서버 DB 전체 재조회가 필요한 경우에는 API 설계를 변경해야 합니다.
+
+> 일괄보정 확인창은 Ant Design `Modal.confirm` 예시입니다. 실제 사내 공통 Confirm/알림 Modal이 있으면 해당 컴포넌트로 교체하세요. 취소 시 호출하지 않고, 성공 시에만 재조회 및 완료 알림을 실행합니다. 요청 본문은 `{ adjustList: targets }` 형태입니다.
