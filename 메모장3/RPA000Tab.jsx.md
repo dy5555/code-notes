@@ -107,10 +107,18 @@ export default function RPA000Tab({
             cancelText: '취소',
             onOk: async () => {
                 await batchAdjust({ adjustList: targets });
-                search(getSearchParams()); // 성공 후 그리드/건수 재조회
                 Modal.success({
                     title: '알림',
-                    content: 'SOM CD 일괄 보정을 완료하였습니다.'
+                    content: (
+                        <>
+                            SOM CD 일괄 보정을 완료하였습니다.<br />
+                            데이터를 다시 조회합니다.
+                        </>
+                    ),
+                    okText: '확인',
+                    onOk: () => {
+                        search(getSearchParams()); // 완료 알림 확인 후 재조회
+                    }
                 });
             }
         });
@@ -158,4 +166,4 @@ RPA000Tab.propTypes = {
 
 일괄보정은 현재 `rowData` 전체에서 `gnlCrrYn === 'Y'`인 행만 대상으로 합니다. Java는 전달받은 목록을 FOR 반복하여 `salesProdId`, `tobeRpSomcd`로 프로시저를 호출해야 합니다. 서버 DB 전체 재조회가 필요한 경우에는 API 설계를 변경해야 합니다.
 
-> 일괄보정 확인창은 Ant Design `Modal.confirm` 예시입니다. 실제 사내 공통 Confirm/알림 Modal이 있으면 해당 컴포넌트로 교체하세요. 취소 시 호출하지 않고, 성공 시에만 재조회 및 완료 알림을 실행합니다. 요청 본문은 `{ adjustList: targets }` 형태입니다.
+> 일괄보정 확인창은 Ant Design `Modal.confirm` 예시입니다. 실제 사내 공통 Confirm/알림 Modal이 있으면 해당 컴포넌트로 교체하세요. 취소 시 호출하지 않고, 성공 시 완료 알림을 표시하고, 그 알림의 확인 버튼을 누른 뒤 재조회합니다. 요청 본문은 `{ adjustList: targets }` 형태입니다.
