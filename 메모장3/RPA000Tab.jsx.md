@@ -32,7 +32,9 @@ export default function RPA000Tab({
         isSearched,
         setSomMonth,
         search,
-        clearGrid
+        clearGrid,
+        batchAdjust,
+        isAdjusting
     } = useRPA000Fetch(tabId);
 
     // 최초 월·주차 결과는 Tab 생명주기에서 한 번만 적용.
@@ -84,6 +86,26 @@ export default function RPA000Tab({
         clearGrid(); // 기존 화면에서 초기화 시 그리드를 비우는 경우에만 유지
     };
 
+    // 전체 조회 결과 중 보정 가능(Y) 행만 서버에 한 번 전송
+    const handleBatchAdjust = async () => {
+        if (isAdjusting) return;
+        const targets = (rowData ?? [])
+            .filter((item) => item.gnlCrrYn === 'Y')
+            .map((item) => ({
+                salesProdId: item.salesProdId,
+                tobeRpSomcd: item.tobeRpSomcd
+            }));
+        if (targets.length === 0) return;
+
+        try {
+            await batchAdjust(targets);
+            search(getSearchParams()); // 보정 성공 후 그리드/건수 갱신
+        } catch (error) {
+            // 실제 프로젝트의 공통 오류 알림 처리 연결
+            throw error;
+        }
+    };
+
     // 기존 퍼블리싱의 handleSearch / handleReset 및 JSX prop 이름을 그대로 유지하세요.
     // 아래는 기존 퍼블리싱 JSX에 연결할 값만 표시한 예시입니다.
     // 실제 컴포넌트 props 명칭/그리드 구성은 기존 RPA000Tab.jsx를 유지하세요.
@@ -93,7 +115,7 @@ export default function RPA000Tab({
                 filters, formMethods, somCodeList,
                 onSomMonthChange, handleSearch, handleReset
             */}
-            {/* 기존 TableComp에 rowData, isLoading, isSearched 전달 */}
+            {/* 기존 TableComp에 rowData, isLoading, isSearched, handleBatchAdjust, isAdjusting 전달 */}
         </>
     );
 }
@@ -123,3 +145,5 @@ RPA000Tab.propTypes = {
 6. `clearGrid()`는 현재 Fetch 예시에서 React Query 캐시의 `rowData`를 직접 지우지 않습니다. 기존 회사의 그리드 초기화 처리 방식에 맞춰 유지하거나 교체하세요.
 7. `initialAppliedRef`는 Tab 인스턴스 기준입니다. Tab이 언마운트 후 다시 마운트되면 재실행될 수 있으며, Search Hook의 `initialFiltersRef`도 함께 보호합니다.
 8. `fetchaaa01301/02/03`, API 결과의 `item.type/code/plnVer`는 메모장3에서 아직 실제 프로젝트 응답과 대조되지 않은 **예시**입니다.
+
+일괄보정은 현재 `rowData` 전체에서 `gnlCrrYn === 'Y'`인 행만 대상으로 합니다. Java는 전달받은 목록을 FOR 반복하여 `salesProdId`, `tobeRpSomcd`로 프로시저를 호출해야 합니다. 서버 DB 전체 재조회가 필요한 경우에는 API 설계를 변경해야 합니다.
