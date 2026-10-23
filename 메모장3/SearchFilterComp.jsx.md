@@ -10,10 +10,16 @@ export default function SearchFilterComp({
     filters,
     formMethods,
     somCodeList,
+    disabledSearchBox,
     initialStockMonth,
     initialSalesResultMonth,
     onSomMonthChange
 }) {
+    // 공통 SearchConditionForm의 기존 disabled prop에 disabledSearchBox 전달:
+    // <SearchConditionForm
+    //     {...기존Props}
+    //     disabled={disabledSearchBox}
+    // />
     // 기존 필터 UI 및 폼 컴포넌트는 유지
     // 실제 JSX에서 쓰는 props만 구조분해하세요. 조회/초기화 버튼이
     // 이 컴포넌트 안에 있다면 기존 버튼 이벤트에 handleSearch/handleReset을 연결하세요.
@@ -53,11 +59,16 @@ SearchFilterComp.propTypes = {
     filters: PropTypes.object,
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
+    disabledSearchBox: PropTypes.bool,
     initialStockMonth: PropTypes.object,
     initialSalesResultMonth: PropTypes.object,
     onSomMonthChange: PropTypes.func
 };
 ```
+
+## 조회 버튼 비활성화
+
+기존 공통 `SearchConditionForm`은 `disabled` prop을 지원하므로 수정하지 않습니다. 기존 `disabledSearchBox`를 `useRPA000Search`에서 관리하고, SOM 코드 목록이 없을 때 true로 설정해 `SearchConditionForm disabled={disabledSearchBox}`로 전달합니다. 이 문서의 JSX는 연결 예시이며 회사의 실제 UI를 교체하지 마세요.
 
 ## 재고조회 월 상한 연결
 
