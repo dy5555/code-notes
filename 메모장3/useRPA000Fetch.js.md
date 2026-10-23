@@ -82,7 +82,11 @@ export function useRPA000Fetch(tabId) {
                 salesResultMonth: searchParams.salesResultMonth?.format('YYYYMM') ?? null,
                 inboundDemandWeek: searchParams.inboundDemandWeek?.format('YYYYww') ?? null
             };
-            const result = await fetchaaa01303(params);
+            toast.loading('조회 중입니다.', 0);
+            const result = await fetchaaa01303(params).finally(() => toast.destroy());
+            if (!result.data?.length) {
+                toast.info('조회결과가 존재하지 않습니다.');
+            }
             return result.data ?? [];
         },
         enabled: !!searchParams,
