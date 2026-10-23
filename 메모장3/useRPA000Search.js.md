@@ -4,7 +4,7 @@
 
 ```jsx
 import { useState, useRef, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
@@ -25,9 +25,10 @@ export function useRPA000Search() {
     const formMethods = useForm({ defaultValues: createInitialFilters() });
     const { reset, getValues, setValue } = formMethods;
     const [somCodeList, setSomCodeList] = useState([]);
-    const [initialStockMonth, setInitialStockMonth] = useState(null);
     const initialFiltersRef = useRef(null);
     const initialSomCodeListRef = useRef(null);
+    // reset(values) 후 Hook이 다시 렌더링되도록 재고조회 월을 구독
+    useWatch({ control: formMethods.control, name: 'stockMonth' });
 
     // aaa01: 최초 검색조건은 폼에 한 번만 설정
     const applyInitialData = useCallback((rows) => {
@@ -58,7 +59,6 @@ export function useRPA000Search() {
         });
 
         initialFiltersRef.current = { ...values };
-        setInitialStockMonth(values.stockMonth);
         reset(values);
         return values.somMonth?.format('YYYYMM') ?? null;
     }, [reset]);
@@ -104,7 +104,7 @@ export function useRPA000Search() {
         filters,
         formMethods,
         somCodeList,
-        initialStockMonth,
+        initialStockMonth: initialFiltersRef.current?.stockMonth ?? null,
         applyInitialData,
         applySomCodes,
         handleSomMonthChange,
@@ -116,6 +116,7 @@ export function useRPA000Search() {
 
 ## 기존 컴포넌트 연결 시 주의
 
+- `initialStockMonth`는 별도 state 없이 `initialFiltersRef.current.stockMonth`에서 파생합니다. `useWatch`가 최초 `reset(values)` 후 리렌더링을 보장합니다.
 - 기존 `filters`는 초기값 용도로만 유지하고 `setFilters`는 추가하지 않습니다.
 - `SearchFilterComp`에 `formMethods`를 그대로 전달하고, 각 필드는 RHF `Controller`/`register` 등 기존 바인딩을 유지합니다.
 - SOM 월 필드의 기존 RHF `onChange`가 값을 반영한 뒤 `onSomMonthChange(newMonth)`도 호출해야 코드 목록을 다시 조회합니다. 이 콜백을 기존 RHF `onChange` 대신 넣으면 폼의 월 값이 갱신되지 않을 수 있습니다.
