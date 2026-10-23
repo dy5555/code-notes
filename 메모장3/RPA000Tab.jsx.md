@@ -16,6 +16,7 @@ export default function RPA000Tab({
     filters,
     formMethods,
     somCodeList,
+    disabledSearchBox,
     initialStockMonth, // 기존 initialFiltersRef에서 파생한 최초 재고조회 월
     initialSalesResultMonth, // 최초 판매실적 월
     applyInitialData,
@@ -78,6 +79,7 @@ export default function RPA000Tab({
 
     // 기존 퍼블리싱 함수명 유지: 조회 버튼
     const handleSearch = async () => {
+        if (disabledSearchBox) return;
         search(getSearchParams());
     };
 
@@ -132,7 +134,7 @@ export default function RPA000Tab({
     return (
         <>
             {/* 기존 SearchFilterComp에 아래 값을 기존 prop 이름으로 전달
-                filters, formMethods, somCodeList, initialStockMonth, initialSalesResultMonth,
+                filters, formMethods, somCodeList, disabledSearchBox, initialStockMonth, initialSalesResultMonth,
                 onSomMonthChange, handleSearch, handleReset
             */}
             {/* 기존 TableComp에 rowData, isLoading, isSearched, handleBatchAdjust, isAdjusting 전달 */}
@@ -146,6 +148,7 @@ RPA000Tab.propTypes = {
     filters: PropTypes.object,
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
+    disabledSearchBox: PropTypes.bool,
     initialStockMonth: PropTypes.object,
     initialSalesResultMonth: PropTypes.object,
     applyInitialData: PropTypes.func,
@@ -155,6 +158,10 @@ RPA000Tab.propTypes = {
     getSearchParams: PropTypes.func
 };
 ```
+
+## 조회 버튼 비활성화
+
+`disabledSearchBox`를 SearchFilterComp로 전달하여 공통 SearchConditionForm의 기존 `disabled` prop에 연결합니다. 조회 핸들러에서도 `disabledSearchBox`가 true면 API 호출을 중지합니다.
 
 ## 실제 프로젝트에 반영할 때 꼭 확인
 
