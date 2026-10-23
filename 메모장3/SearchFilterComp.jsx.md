@@ -55,7 +55,7 @@ SearchFilterComp.propTypes = {
 
 ## 재고조회 월 상한 연결
 
-`useRPA000Search()`가 반환하는 `initialStockMonth`를 `RPA000.jsx`의 기존 `getPaneProps()`를 통해 `RPA000Tab.jsx`에 전달하고, 다시 `SearchFilterComp`로 전달하세요. 기존 재고조회 월 DatePicker에만 위 `disabledDate`를 추가합니다. 초기 조회 월은 변경하지 않으며 다른 월 선택에도 상한이 움직이지 않습니다.
+`useRPA000Search()`가 기존 `initialFiltersRef.current.stockMonth`에서 반환하는 `initialStockMonth`를 `RPA000.jsx`의 기존 `getPaneProps()`를 통해 `RPA000Tab.jsx`에 전달하고, 다시 `SearchFilterComp`로 전달하세요. 기존 재고조회 월 DatePicker에만 위 `disabledDate`를 추가합니다. 초기 조회 월은 변경하지 않으며 다른 월 선택에도 상한이 움직이지 않습니다.
 
 ## 연결 흐름
 
