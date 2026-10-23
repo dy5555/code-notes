@@ -25,6 +25,7 @@ export function useRPA000Search() {
     const formMethods = useForm({ defaultValues: createInitialFilters() });
     const { reset, getValues, setValue } = formMethods;
     const [somCodeList, setSomCodeList] = useState([]);
+    const [initialStockMonth, setInitialStockMonth] = useState(null);
     const initialFiltersRef = useRef(null);
     const initialSomCodeListRef = useRef(null);
 
@@ -57,6 +58,7 @@ export function useRPA000Search() {
         });
 
         initialFiltersRef.current = { ...values };
+        setInitialStockMonth(values.stockMonth);
         reset(values);
         return values.somMonth?.format('YYYYMM') ?? null;
     }, [reset]);
@@ -102,6 +104,7 @@ export function useRPA000Search() {
         filters,
         formMethods,
         somCodeList,
+        initialStockMonth,
         applyInitialData,
         applySomCodes,
         handleSomMonthChange,
