@@ -10,11 +10,17 @@ export default function SearchFilterComp({
     filters,
     formMethods,
     somCodeList,
+    initialStockMonth,
     onSomMonthChange
 }) {
     // 기존 필터 UI 및 폼 컴포넌트는 유지
     // 실제 JSX에서 쓰는 props만 구조분해하세요. 조회/초기화 버튼이
     // 이 컴포넌트 안에 있다면 기존 버튼 이벤트에 handleSearch/handleReset을 연결하세요.
+    // 재고조회 월(stockMonth) DatePicker에는 최초 API 조회 월 이후를 비활성화:
+    // disabledDate={(current) =>
+    //     Boolean(current && initialStockMonth && current.isAfter(initialStockMonth, 'month'))
+    // }
+    // 예: 최초 202610이면 202611부터 선택 불가. 현재 선택값을 상한으로 쓰지 마세요.
     // SOM 월 필드의 RHF Controller render 내부에서만 다음처럼 연결:
     //
     // <DatePicker
@@ -42,9 +48,14 @@ SearchFilterComp.propTypes = {
     filters: PropTypes.object,
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
+    initialStockMonth: PropTypes.object,
     onSomMonthChange: PropTypes.func
 };
 ```
+
+## 재고조회 월 상한 연결
+
+`useRPA000Search()`가 반환하는 `initialStockMonth`를 `RPA000.jsx`의 기존 `getPaneProps()`를 통해 `RPA000Tab.jsx`에 전달하고, 다시 `SearchFilterComp`로 전달하세요. 기존 재고조회 월 DatePicker에만 위 `disabledDate`를 추가합니다. 초기 조회 월은 변경하지 않으며 다른 월 선택에도 상한이 움직이지 않습니다.
 
 ## 연결 흐름
 
