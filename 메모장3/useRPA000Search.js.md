@@ -25,6 +25,7 @@ export function useRPA000Search() {
     const formMethods = useForm({ defaultValues: createInitialFilters() });
     const { reset, getValues, setValue } = formMethods;
     const [somCodeList, setSomCodeList] = useState([]);
+    const [disabledSearchBox, setDisabledSearchBox] = useState(true);
     const initialFiltersRef = useRef(null);
     const initialSomCodeListRef = useRef(null);
     // reset(values) 후 Hook이 다시 렌더링되도록 재고조회 월과 판매실적 월을 구독
@@ -72,6 +73,7 @@ export function useRPA000Search() {
         }));
 
         setSomCodeList(options);
+        setDisabledSearchBox(options.length === 0);
         const firstCode = options[0]?.value ?? null;
         setValue('somCd', firstCode);
 
@@ -88,6 +90,7 @@ export function useRPA000Search() {
     const handleSomMonthChange = useCallback((newMonth) => {
         setValue('somCd', null);
         setSomCodeList([]);
+        setDisabledSearchBox(true);
         return newMonth;
     }, [setValue]);
 
@@ -96,6 +99,7 @@ export function useRPA000Search() {
         if (initialFiltersRef.current === null) return;
         reset({ ...initialFiltersRef.current });
         setSomCodeList(initialSomCodeListRef.current ?? []);
+        setDisabledSearchBox((initialSomCodeListRef.current ?? []).length === 0);
     }, [reset]);
 
     const getSearchParams = useCallback(() => ({ ...getValues() }), [getValues]);
@@ -104,6 +108,7 @@ export function useRPA000Search() {
         filters,
         formMethods,
         somCodeList,
+        disabledSearchBox,
         initialStockMonth: initialFiltersRef.current?.stockMonth ?? null,
         initialSalesResultMonth: initialFiltersRef.current?.salesResultMonth ?? null,
         applyInitialData,
@@ -117,6 +122,7 @@ export function useRPA000Search() {
 
 ## 기존 컴포넌트 연결 시 주의
 
+- `disabledSearchBox`는 SOM 코드 목록이 비어 있을 때 true이며, 월 변경 시 비활성화하고 코드 응답 및 초기화 시 다시 동기화합니다. 실제 프로젝트에 동일한 state가 있으면 중복 생성하지 말고 기존 선언에 setter만 추가하세요.
 - `initialSalesResultMonth`도 기존 `initialFiltersRef.current.salesResultMonth`에서 파생하며 별도 state가 필요 없습니다.
 - `initialStockMonth`는 별도 state 없이 `initialFiltersRef.current.stockMonth`에서 파생합니다. `useWatch`가 최초 `reset(values)` 후 리렌더링을 보장합니다.
 - 기존 `filters`는 초기값 용도로만 유지하고 `setFilters`는 추가하지 않습니다.
