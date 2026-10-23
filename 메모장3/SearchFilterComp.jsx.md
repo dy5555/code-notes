@@ -11,6 +11,7 @@ export default function SearchFilterComp({
     formMethods,
     somCodeList,
     initialStockMonth,
+    initialSalesResultMonth,
     onSomMonthChange
 }) {
     // 기존 필터 UI 및 폼 컴포넌트는 유지
@@ -21,6 +22,10 @@ export default function SearchFilterComp({
     //     Boolean(current && initialStockMonth && current.isAfter(initialStockMonth, 'month'))
     // }
     // 예: 최초 202610이면 202611부터 선택 불가. 현재 선택값을 상한으로 쓰지 마세요.
+    // 판매실적 월(salesResultMonth) DatePicker에도 동일한 상한 적용:
+    // disabledDate={(current) =>
+    //     Boolean(current && initialSalesResultMonth && current.isAfter(initialSalesResultMonth, 'month'))
+    // }
     // SOM 월 필드의 RHF Controller render 내부에서만 다음처럼 연결:
     //
     // <DatePicker
@@ -49,6 +54,7 @@ SearchFilterComp.propTypes = {
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
     initialStockMonth: PropTypes.object,
+    initialSalesResultMonth: PropTypes.object,
     onSomMonthChange: PropTypes.func
 };
 ```
@@ -56,6 +62,10 @@ SearchFilterComp.propTypes = {
 ## 재고조회 월 상한 연결
 
 `useRPA000Search()`가 기존 `initialFiltersRef.current.stockMonth`에서 반환하는 `initialStockMonth`를 `RPA000.jsx`의 기존 `getPaneProps()`를 통해 `RPA000Tab.jsx`에 전달하고, 다시 `SearchFilterComp`로 전달하세요. 기존 재고조회 월 DatePicker에만 위 `disabledDate`를 추가합니다. 초기 조회 월은 변경하지 않으며 다른 월 선택에도 상한이 움직이지 않습니다.
+
+## 판매실적 월 상한 연결
+
+최초 `SALES_ACT_YM`으로 설정된 `salesResultMonth`를 `initialFiltersRef`에서 읽어 `initialSalesResultMonth`로 전달합니다. 판매실적 월 DatePicker에만 해당 `disabledDate`를 추가하세요. 재고조회 월 제한과 각각 독립적으로 적용됩니다.
 
 ## 연결 흐름
 
