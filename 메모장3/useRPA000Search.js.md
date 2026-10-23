@@ -27,8 +27,8 @@ export function useRPA000Search() {
     const [somCodeList, setSomCodeList] = useState([]);
     const initialFiltersRef = useRef(null);
     const initialSomCodeListRef = useRef(null);
-    // reset(values) 후 Hook이 다시 렌더링되도록 재고조회 월을 구독
-    useWatch({ control: formMethods.control, name: 'stockMonth' });
+    // reset(values) 후 Hook이 다시 렌더링되도록 재고조회 월과 판매실적 월을 구독
+    useWatch({ control: formMethods.control, name: ['stockMonth', 'salesResultMonth'] });
 
     // aaa01: 최초 검색조건은 폼에 한 번만 설정
     const applyInitialData = useCallback((rows) => {
@@ -105,6 +105,7 @@ export function useRPA000Search() {
         formMethods,
         somCodeList,
         initialStockMonth: initialFiltersRef.current?.stockMonth ?? null,
+        initialSalesResultMonth: initialFiltersRef.current?.salesResultMonth ?? null,
         applyInitialData,
         applySomCodes,
         handleSomMonthChange,
@@ -116,6 +117,7 @@ export function useRPA000Search() {
 
 ## 기존 컴포넌트 연결 시 주의
 
+- `initialSalesResultMonth`도 기존 `initialFiltersRef.current.salesResultMonth`에서 파생하며 별도 state가 필요 없습니다.
 - `initialStockMonth`는 별도 state 없이 `initialFiltersRef.current.stockMonth`에서 파생합니다. `useWatch`가 최초 `reset(values)` 후 리렌더링을 보장합니다.
 - 기존 `filters`는 초기값 용도로만 유지하고 `setFilters`는 추가하지 않습니다.
 - `SearchFilterComp`에 `formMethods`를 그대로 전달하고, 각 필드는 RHF `Controller`/`register` 등 기존 바인딩을 유지합니다.
