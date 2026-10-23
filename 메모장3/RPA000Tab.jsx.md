@@ -16,6 +16,8 @@ export default function RPA000Tab({
     filters,
     formMethods,
     somCodeList,
+    availableSomMonths,
+    applyAvailableSomMonths,
     disabledSearchBox,
     initialStockMonth, // 기존 initialFiltersRef에서 파생한 최초 재고조회 월
     initialSalesResultMonth, // 최초 판매실적 월
@@ -28,6 +30,9 @@ export default function RPA000Tab({
     const {
         initialData,
         isInitialSuccess,
+        somAvailableMonthData,
+        isSomAvailableMonthSuccess,
+        isSomAvailableMonthLoading,
         somCodeData,
         isSomSuccess,
         somMonth,
@@ -52,6 +57,12 @@ export default function RPA000Tab({
         const initialSomMonth = applyInitialData(initialData);
         if (initialSomMonth) setSomMonth(initialSomMonth);
     }, [isInitialSuccess, initialData, applyInitialData, setSomMonth]);
+
+    // aaa05 최초 조회 결과: SOM CD가 존재하는 년월 목록 저장
+    useEffect(() => {
+        if (!isSomAvailableMonthSuccess) return;
+        applyAvailableSomMonths(somAvailableMonthData);
+    }, [isSomAvailableMonthSuccess, somAvailableMonthData, applyAvailableSomMonths]);
 
     // SOM 코드 결과를 현재 월에만 적용.
     // 동일 월/동일 결과 객체로 effect가 반복되어 선택값을 덮지 않도록 보호.
@@ -134,7 +145,7 @@ export default function RPA000Tab({
     return (
         <>
             {/* 기존 SearchFilterComp에 아래 값을 기존 prop 이름으로 전달
-                filters, formMethods, somCodeList, disabledSearchBox, initialStockMonth, initialSalesResultMonth,
+                filters, formMethods, somCodeList, availableSomMonths, isSomAvailableMonthLoading, disabledSearchBox, initialStockMonth, initialSalesResultMonth,
                 onSomMonthChange, handleSearch, handleReset
             */}
             {/* 기존 TableComp에 rowData, isLoading, isSearched, handleBatchAdjust, isAdjusting 전달 */}
@@ -148,6 +159,8 @@ RPA000Tab.propTypes = {
     filters: PropTypes.object,
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
+    availableSomMonths: PropTypes.arrayOf(PropTypes.string),
+    applyAvailableSomMonths: PropTypes.func,
     disabledSearchBox: PropTypes.bool,
     initialStockMonth: PropTypes.object,
     initialSalesResultMonth: PropTypes.object,
@@ -158,6 +171,10 @@ RPA000Tab.propTypes = {
     getSearchParams: PropTypes.func
 };
 ```
+
+## SOM 선택 가능 월 목록
+
+`useRPA000Fetch`에서 최초 실행되는 신규 `aaa05` 조회 결과를 `applyAvailableSomMonths`로 Search Hook에 저장합니다. `availableSomMonths`와 `isSomAvailableMonthLoading`을 기존 SearchFilterComp에 전달해 SOM DatePicker에 적용합니다. 목록 로딩 중에는 월 선택을 막습니다.
 
 ## 조회 버튼 비활성화
 
