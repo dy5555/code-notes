@@ -10,6 +10,8 @@ export default function SearchFilterComp({
     filters,
     formMethods,
     somCodeList,
+    availableSomMonths,
+    isSomAvailableMonthLoading,
     disabledSearchBox,
     initialStockMonth,
     initialSalesResultMonth,
@@ -36,6 +38,11 @@ export default function SearchFilterComp({
     //
     // <DatePicker
     //     {...field}
+    //     picker="month"
+    //     disabled={isSomAvailableMonthLoading}
+    //     disabledDate={(current) =>
+    //         !current || !availableSomMonths.includes(current.format('YYYYMM'))
+    //     }
     //     onChange={(newMonth) => {
     //         field.onChange(newMonth);     // RHF 폼 값 변경
     //         onSomMonthChange(newMonth);  // SOM 코드 초기화 및 조회 월 변경
@@ -59,12 +66,18 @@ SearchFilterComp.propTypes = {
     filters: PropTypes.object,
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
+    availableSomMonths: PropTypes.arrayOf(PropTypes.string),
+    isSomAvailableMonthLoading: PropTypes.bool,
     disabledSearchBox: PropTypes.bool,
     initialStockMonth: PropTypes.object,
     initialSalesResultMonth: PropTypes.object,
     onSomMonthChange: PropTypes.func
 };
 ```
+
+## SOM 월 달력 활성화
+
+최초 `aaa05` 응답으로 `availableSomMonths`를 받습니다. 기존 SOM 월 DatePicker에 `disabledDate`를 추가해 해당 `YYYYMM`만 선택할 수 있게 하고, 로딩 중에는 달력 입력을 잠시 비활성화합니다. 월을 선택하면 기존 `onSomMonthChange`로 `aaa02` SOM CD 조회가 실행됩니다. 공통 DatePicker가 `disabledDate`를 지원하는지 확인하세요.
 
 ## 조회 버튼 비활성화
 
