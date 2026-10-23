@@ -16,6 +16,7 @@ export default function RPA000Tab({
     filters,
     formMethods,
     somCodeList,
+    initialStockMonth,
     applyInitialData,
     applySomCodes,
     handleSomMonthChange,
@@ -130,7 +131,7 @@ export default function RPA000Tab({
     return (
         <>
             {/* 기존 SearchFilterComp에 아래 값을 기존 prop 이름으로 전달
-                filters, formMethods, somCodeList,
+                filters, formMethods, somCodeList, initialStockMonth,
                 onSomMonthChange, handleSearch, handleReset
             */}
             {/* 기존 TableComp에 rowData, isLoading, isSearched, handleBatchAdjust, isAdjusting 전달 */}
@@ -144,6 +145,7 @@ RPA000Tab.propTypes = {
     filters: PropTypes.object,
     formMethods: PropTypes.object,
     somCodeList: PropTypes.array,
+    initialStockMonth: PropTypes.object,
     applyInitialData: PropTypes.func,
     applySomCodes: PropTypes.func,
     handleSomMonthChange: PropTypes.func,
