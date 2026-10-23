@@ -25,6 +25,7 @@ export function useRPA000Search() {
     const formMethods = useForm({ defaultValues: createInitialFilters() });
     const { reset, getValues, setValue } = formMethods;
     const [somCodeList, setSomCodeList] = useState([]);
+    const [availableSomMonths, setAvailableSomMonths] = useState([]);
     const [disabledSearchBox, setDisabledSearchBox] = useState(true);
     const initialFiltersRef = useRef(null);
     const initialSomCodeListRef = useRef(null);
@@ -63,6 +64,11 @@ export function useRPA000Search() {
         reset(values);
         return values.somMonth?.format('YYYYMM') ?? null;
     }, [reset]);
+
+    // aaa05: 최초 SOM 선택 가능 년월 목록 저장
+    const applyAvailableSomMonths = useCallback((rows) => {
+        setAvailableSomMonths((rows ?? []).map((item) => String(item.somYm)));
+    }, []);
 
     // aaa02: SOM 코드 조회 결과를 옵션에 반영 (월 비교/변환 없음)
     const applySomCodes = useCallback((rows, requestedMonth) => {
@@ -108,6 +114,8 @@ export function useRPA000Search() {
         filters,
         formMethods,
         somCodeList,
+        availableSomMonths,
+        applyAvailableSomMonths,
         disabledSearchBox,
         initialStockMonth: initialFiltersRef.current?.stockMonth ?? null,
         initialSalesResultMonth: initialFiltersRef.current?.salesResultMonth ?? null,
@@ -132,3 +140,5 @@ export function useRPA000Search() {
 - 최초 `applyInitialData()`에서 월과 주차 필드를 Dayjs로 변환합니다. `YYYYww` 파싱은 주차 플러그인 및 업무 주차 규칙 확인이 필요합니다. `resetFilters()`는 API 재호출 없이 폼과 옵션을 복원합니다.
 - 최초 `somCd`가 API 결과로 설정되면 `initialFiltersRef`에도 저장합니다.
 - 실제 회사 소스의 `item.type`, `item.code`, `item.plnVer`는 확인되지 않은 예시 필드입니다.
+
+- `availableSomMonths`는 `aaa05`에서 받은 `YYYYMM` 문자열 배열이며, 초기화 시 변경하지 않습니다.
