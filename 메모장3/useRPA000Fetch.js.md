@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 // 실제 프로젝트에서 만들어 둔 API 함수 import
-// import { fetchaaa01301, fetchaaa01302, fetchaaa01303, fetchaaa01304 } from '실제 API 경로';
+// import { fetchaaa01301, fetchaaa01302, fetchaaa01303, fetchaaa01304, fetchaaa01305 } from '실제 API 경로';
 
 export function useRPA000Fetch(tabId) {
     const [somMonth, setSomMonth] = useState(null);
@@ -29,6 +29,23 @@ export function useRPA000Fetch(tabId) {
         refetchOnWindowFocus: false,
         staleTime: 0,
         gcTime: 5 * 60 * 1000
+    });
+
+    // aaa05: SOM CD가 존재하는 전체 년월(YYYYMM), 화면 최초 진입 시 1회 조회
+    const {
+        data: somAvailableMonthData = [],
+        isSuccess: isSomAvailableMonthSuccess,
+        isLoading: isSomAvailableMonthLoading
+    } = useQuery({
+        queryKey: ['RPA000_SOM_AVAILABLE_MONTHS'],
+        queryFn: async () => {
+            const result = await fetchaaa01305({});
+            return result.data ?? [];
+        },
+        retry: 1,
+        refetchOnWindowFocus: false,
+        staleTime: Infinity,
+        gcTime: 30 * 60 * 1000
     });
 
     // aaa02: SOM 월 변경 시 코드 목록
@@ -98,6 +115,9 @@ export function useRPA000Fetch(tabId) {
     return {
         initialData,
         isInitialSuccess,
+        somAvailableMonthData,
+        isSomAvailableMonthSuccess,
+        isSomAvailableMonthLoading,
         somCodeData,
         isSomSuccess,
         somMonth,
@@ -122,6 +142,7 @@ RPA000.jsx
 RPA000Tab.jsx
   └─ useRPA000Fetch(tabId)
        ├─ aaa01 → initialData → applyInitialData()
+       ├─ aaa05 → somAvailableMonthData → applyAvailableSomMonths() (최초 1회)
        ├─ aaa02 → somCodeData → applySomCodes()
        ├─ aaa03 → rowData / isLoading → TableComp
        └─ aaa04 → batchAdjust(rows) → Java 반복 프로시저 호출
@@ -134,3 +155,6 @@ Tab의 최초 데이터/옵션 반영은 `isInitialSuccess`, `isSomSuccess`로 �
 **주의:** `fetchaaa01301~03`, 응답 `result.data`는 실제 API 규격에 맞게 확인해야 합니다. `isLoading`은 React Query의 최초 로딩 상태이며 재조회 진행 여부까지 표시하려면 `isFetching`이 별도로 필요합니다.
 
 일괄보정 요청 본문 예시: `[{ salesProdId: '...', tobeRpSomcd: '...' }]`. `fetchaaa01304`는 임시 API 함수명이며 실제 API 및 요청 래핑 규격에 맞춰 연결해야 합니다.
+
+
+`aaa05`는 신규 API 예시입니다. 기존 `aaa03`(그리드), `aaa04`(일괄보정)는 변경하지 않습니다. `fetchaaa01305` 실제 구현 및 import는 프로젝트 API 파일에 추가해야 합니다. 서버 응답은 `[{ somYm: '202608' }]` 형태를 가정합니다. React Query 캐시는 컴포넌트가 마운트된 동안 유지되며 페이지 새로고침이나 캐시 만료 후에는 재조회될 수 있습니다.
