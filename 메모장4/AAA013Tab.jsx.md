@@ -2,7 +2,7 @@
 
 메모장3 대비 수정
 - 요약/자리표시자 JSX → 퍼블리셔 `tabs/AAA013Tab.jsx` 레이아웃 기준 풀코드
-- 퍼블리셔 배치대로 조회·초기화·일괄보정 버튼을 이 파일에 둠 (보정 건수도 여기서 계산)
+- 조회·초기화 버튼은 이 파일, 일괄보정 버튼·보정 건수는 메모장3대로 `TableComp`에 유지
 - 일괄보정 중복 요청 방지 (`adjustingRef`)
 - 일괄보정 실패 시 오류 알림 (try/catch)
 - 조회 중(`isLoading`)에는 일괄보정 버튼 비활성화
@@ -105,21 +105,21 @@ export default function AAA013Tab({
         clearGrid();
     };
 
-    // 일괄보정 대상
-    const adjustTargets = (rowData ?? [])
-        .filter((item) => item.gnlCrrYn === 'Y')
-        .map((item) => ({
-            salesProdId: item.salesProdId,
-            tobeRpSomcd: item.tobeRpSomcd
-        }));
-    const adjustCount = adjustTargets.length;
-
     // 확인창이 떠 있는 동안 중복 클릭 방지
     const adjustingRef = useRef(false);
 
+    // 보정 가능 행만 확인 후 전송. 취소 시 API를 호출하지 않음.
     const handleBatchAdjust = () => {
         if (isAdjusting || adjustingRef.current) return;
-        if (adjustCount === 0) return;
+
+        const targets = (rowData ?? [])
+            .filter((item) => item.gnlCrrYn === 'Y')
+            .map((item) => ({
+                salesProdId: item.salesProdId,
+                tobeRpSomcd: item.tobeRpSomcd
+            }));
+
+        if (targets.length === 0) return;
 
         adjustingRef.current = true;
 
@@ -133,7 +133,7 @@ export default function AAA013Tab({
             },
             onOk: async () => {
                 try {
-                    await batchAdjust({ adjustList: adjustTargets });
+                    await batchAdjust({ adjustList: targets });
                     Modal.success({
                         title: '알림',
                         content: (
@@ -186,23 +186,12 @@ export default function AAA013Tab({
                 </Space>
             </Card>
             <Card size="small">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <Typography.Text strong>조회 결과</Typography.Text>
-                    <Button
-                        type="primary"
-                        onClick={handleBatchAdjust}
-                        loading={isAdjusting}
-                        disabled={isAdjusting || isLoading || adjustCount === 0}
-                    >
-                        {isAdjusting
-                            ? '일괄보정 처리 중...'
-                            : `보정 가능 데이터 : ${adjustCount}건 일괄보정`}
-                    </Button>
-                </div>
                 <TableComp
                     rowData={rowData}
                     isLoading={isLoading}
                     isSearched={isSearched}
+                    handleBatchAdjust={handleBatchAdjust}
+                    isAdjusting={isAdjusting}
                 />
             </Card>
         </div>
