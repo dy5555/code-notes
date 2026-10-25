@@ -20,6 +20,6 @@ const adjustCount = (rowData ?? []).filter(
 </button>
 ```
 
-`RPA000Tab.jsx`에서 기존 TableComp에 `handleBatchAdjust`, `isAdjusting`을 전달해야 합니다. 기존 TableComp의 propTypes를 사용한다면 두 항목도 추가하세요.
+`AAA013Tab.jsx`에서 기존 TableComp에 `handleBatchAdjust`, `isAdjusting`을 전달해야 합니다. 기존 TableComp의 propTypes를 사용한다면 두 항목도 추가하세요.
 
 이 건수는 현재 조회된 `rowData` 중 `gnlCrrYn === 'Y'`인 행의 수입니다.

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { getInitialMonthWeek } from "../../../../../api/r/pm/pla/RPA000Api";
+import { getInitialMonthWeek } from "../../../../../api/r/pm/pla/AAA013Api";
 
 /**
  * 서버의 YYYYMM 문자열(예: 202610)을 DatePicker가 이해하는 dayjs로 변환합니다.
@@ -28,7 +28,7 @@ const toWeekValue = (week) => (week == null ? null : String(week));
  * - useEffect: 화면이 처음 나타났을 때 API를 한 번 호출합니다.
  * - return: Tab에서 사용할 값들을 꺼내 줍니다.
  */
-const useRPA000Search = () => {
+const useAAA013Search = () => {
   const [searchFilter, setSearchFilter] = useState({
     stockMonth: null,
     salesDemandWeek: null,
@@ -80,4 +80,4 @@ const useRPA000Search = () => {
   return { searchFilter, setSearchFilter, loading, error };
 };
 
-export default useRPA000Search;
+export default useAAA013Search;

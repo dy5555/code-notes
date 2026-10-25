@@ -1,7 +1,7 @@
 import React from "react";
 import SearchFilterComp from "../components/SearchFilterComp";
 import TableComp from "../components/TableComp";
-import useRPA000Search from "../hooks/useRPA000Search";
+import useAAA013Search from "../hooks/useAAA013Search";
 
 /**
  * [Tab의 역할]
@@ -9,9 +9,9 @@ import useRPA000Search from "../hooks/useRPA000Search";
  * 2. props로 SearchFilterComp에 값을 전달합니다.
  * 3. 검색 컴포넌트는 전달받은 값을 표시하기만 합니다.
  */
-const RPA000Tab = () => {
+const AAA013Tab = () => {
   // 구조 분해 할당: Hook이 반환한 객체에서 필요한 값만 꺼냅니다.
-  const { searchFilter, loading, error } = useRPA000Search();
+  const { searchFilter, loading, error } = useAAA013Search();
 
   return (
     <div>
@@ -25,4 +25,4 @@ const RPA000Tab = () => {
   );
 };
 
-export default RPA000Tab;
+export default AAA013Tab;

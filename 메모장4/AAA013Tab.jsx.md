@@ -1,7 +1,7 @@
-# RPA000Tab.jsx — 조회/초기화/일괄보정 연결 (풀코드)
+# AAA013Tab.jsx — 조회/초기화/일괄보정 연결 (풀코드)
 
 메모장3 대비 수정
-- 요약/자리표시자 JSX → 퍼블리셔 `tabs/RPA000Tab.jsx` 레이아웃 기준 풀코드
+- 요약/자리표시자 JSX → 퍼블리셔 `tabs/AAA013Tab.jsx` 레이아웃 기준 풀코드
 - 퍼블리셔 배치대로 조회·초기화·일괄보정 버튼을 이 파일에 둠 (보정 건수도 여기서 계산)
 - 일괄보정 중복 요청 방지 (`adjustingRef`)
 - 일괄보정 실패 시 오류 알림 (try/catch)
@@ -14,9 +14,9 @@ import PropTypes from 'prop-types';
 import { Card, Button, Space, Typography, Modal } from 'antd';
 import SearchFilterComp from '../components/SearchFilterComp';
 import TableComp from '../components/TableComp';
-import { useRPA000Fetch } from '../hooks/useRPA000Fetch';
+import { useAAA013Fetch } from '../hooks/useAAA013Fetch';
 
-export default function RPA000Tab({
+export default function AAA013Tab({
     tabId,
     filters,
     formMethods,
@@ -49,7 +49,7 @@ export default function RPA000Tab({
         clearGrid,
         batchAdjust,
         isAdjusting
-    } = useRPA000Fetch(tabId);
+    } = useAAA013Fetch(tabId);
 
     // aaa01 최초 월·주차: 한 번만 적용
     const initialAppliedRef = useRef(false);
@@ -209,7 +209,7 @@ export default function RPA000Tab({
     );
 }
 
-RPA000Tab.propTypes = {
+AAA013Tab.propTypes = {
     tabId: PropTypes.string,
     filters: PropTypes.object,
     formMethods: PropTypes.object.isRequired,

@@ -1,6 +1,6 @@
 // 퍼블리싱 전용: 그리드 컬럼 표시 정의만 유지
 // API, 보정 상태 및 이벤트 로직 없음
-export default function useRPA000GridColumns() {
+export default function useAAA013GridColumns() {
     return [
         { title: '구분', dataIndex: 'category', key: 'category' },
         { title: 'SALES_PROD_ID', dataIndex: 'salesProdId', key: 'salesProdId' },

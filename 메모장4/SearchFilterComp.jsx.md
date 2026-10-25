@@ -3,7 +3,7 @@
 메모장3 대비 수정
 - 요약/주석 예시 → 퍼블리셔 `components/SearchFilterComp.jsx` 기준 풀코드
 - 각 필드를 React Hook Form `Controller`로 `formMethods`에 바인딩
-- 조회/초기화 버튼은 퍼블리셔 배치대로 `RPA000Tab`에 있음
+- 조회/초기화 버튼은 퍼블리셔 배치대로 `AAA013Tab`에 있음
 - 주차 2개(판매수요·입고수요)는 규칙 확정 전이라 퍼블리셔 Select 형태만 유지 (스킵)
 
 ```jsx

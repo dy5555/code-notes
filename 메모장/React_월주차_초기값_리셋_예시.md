@@ -2,14 +2,14 @@
 
 > 학습용 예시입니다. 실제 API 경로와 응답 필드명, DatePicker의 value 형식은 사내 프로젝트에 맞춰 연결하세요.
 
-## useRPA000Search.js
+## useAAA013Search.js
 
 ```jsx
 import { useCallback, useEffect, useState } from "react";
 // 실제 프로젝트의 API 함수 경로로 변경
 import { getInitialMonthWeek } from "API_경로";
 
-export function useRPA000Search() {
+export function useAAA013Search() {
     // 최초 서버 조회값: 사용자가 검색조건을 바꿔도 유지
     const [initialFilter, setInitialFilter] = useState(null);
 
@@ -74,14 +74,14 @@ export function useRPA000Search() {
 }
 ```
 
-## RPA000Tab.jsx
+## AAA013Tab.jsx
 
 ```jsx
-import { useRPA000Search } from "../hooks/useRPA000Search";
+import { useAAA013Search } from "../hooks/useAAA013Search";
 
-export const RPA000Tab = () => {
+export const AAA013Tab = () => {
     // Hook에서 현재 검색조건과 초기화 함수 가져오기
-    const { filter, setFilter, reset } = useRPA000Search();
+    const { filter, setFilter, reset } = useAAA013Search();
 
     return (
         <>

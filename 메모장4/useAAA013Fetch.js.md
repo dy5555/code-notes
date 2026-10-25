@@ -1,4 +1,4 @@
-# useRPA000Fetch.js — API 호출 전담 Hook (풀코드)
+# useAAA013Fetch.js — API 호출 전담 Hook (풀코드)
 
 메모장3 대비 수정
 - `toast`(react-toastify), API 함수 import 추가
@@ -17,9 +17,9 @@ import {
     fetchaaa01303,
     fetchaaa01304,
     fetchaaa01305
-} from '../api/RPA000Api';
+} from '../api/AAA013Api';
 
-export function useRPA000Fetch(tabId) {
+export function useAAA013Fetch(tabId) {
     const [somMonth, setSomMonth] = useState(null);
     const [searchParams, setSearchParams] = useState(null);
     const [searchTrigger, setSearchTrigger] = useState(0);
@@ -30,7 +30,7 @@ export function useRPA000Fetch(tabId) {
         data: initialData = [],
         isSuccess: isInitialSuccess
     } = useQuery({
-        queryKey: ['RPA000_INITIAL', tabId],
+        queryKey: ['AAA013_INITIAL', tabId],
         queryFn: async () => {
             const result = await fetchaaa01301({});
             return result.data ?? [];
@@ -47,7 +47,7 @@ export function useRPA000Fetch(tabId) {
         isSuccess: isSomAvailableMonthSuccess,
         isLoading: isSomAvailableMonthLoading
     } = useQuery({
-        queryKey: ['RPA000_SOM_AVAILABLE_MONTHS'],
+        queryKey: ['AAA013_SOM_AVAILABLE_MONTHS'],
         queryFn: async () => {
             const result = await fetchaaa01305({});
             return result.data ?? [];
@@ -63,7 +63,7 @@ export function useRPA000Fetch(tabId) {
         data: somCodeData = [],
         isSuccess: isSomSuccess
     } = useQuery({
-        queryKey: ['RPA000_SOM', tabId, somMonth],
+        queryKey: ['AAA013_SOM', tabId, somMonth],
         queryFn: async () => {
             if (!somMonth) return [];
             const result = await fetchaaa01302({ somMonth });
@@ -81,7 +81,7 @@ export function useRPA000Fetch(tabId) {
         data: rowData = [],
         isLoading
     } = useQuery({
-        queryKey: ['RPA000_GRID', tabId, searchParams, searchTrigger],
+        queryKey: ['AAA013_GRID', tabId, searchParams, searchTrigger],
         queryFn: async () => {
             if (!searchParams) return [];
             const params = {

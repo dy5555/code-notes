@@ -1,4 +1,4 @@
-# RPA000 검색조건 초기값 및 초기화 예제
+# AAA013 검색조건 초기값 및 초기화 예제
 
 `filters`: 화면에서 변경하는 검색조건  
 `resetFilters`: 최초 API 조회값을 보관하는 초기화용 검색조건
@@ -16,7 +16,7 @@ const createInitialFilters = () => ({
     inboundDemandWeek: null  // 입고 Demand 주차
 });
 
-export function useRPA000Search() {
+export function useAAA013Search() {
 
     // 1. 실제 화면에서 사용하는 검색조건
     const [filters, setFilters] = useState(createInitialFilters);
