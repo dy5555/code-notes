@@ -4,7 +4,7 @@ import SearchFilterComp from '../components/SearchFilterComp';
 import TableComp from '../components/TableComp';
 
 // UI 배치만 담당. API / 조회 / 보정 / Hook 로직 없음.
-export default function AAA013Tab() {
+export default function RPA000Tab() {
     return (
         <div style={{ padding: 16 }}>
             <Typography.Title level={4}>SOM 코드 보정</Typography.Title>

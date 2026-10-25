@@ -1,15 +1,15 @@
-# AAA013 그리드 Hook - 메인 조회 API 연결 예제
+# RPA000 그리드 Hook - 메인 조회 API 연결 예제
 
 > 현재 확인된 구조를 기준으로 만든 **전체 예제**입니다. 퍼블리셔가 작성한 실제 `columnDefs`, `defaultColDef`, `tabId` 처리 코드는 확인되지 않았으므로 아래 예시 컬럼/스타일을 실제 코드로 교체하세요. **실제 API 함수명과 응답 형식도 확인 후 변경**해야 합니다.
 
-## 1. hooks/useAAA013GridColumns.js
+## 1. hooks/useRPA000GridColumns.js
 
 ```jsx
 import { useState, useMemo, useCallback } from 'react';
 // 실제 프로젝트 API 함수명 및 경로에 맞게 수정
-import { getAAA013List } from '../../../../api/r/pm/pla/AAA013Api';
+import { getRPA000List } from '../../../../api/r/pm/pla/RPA000Api';
 
-export function useAAA013GridColumns(tabId) {
+export function useRPA000GridColumns(tabId) {
     // 메인 조회 결과
     const [rowData, setRowData] = useState([]);
     const [adjustCnt, setAdjustCnt] = useState(0);
@@ -34,11 +34,11 @@ export function useAAA013GridColumns(tabId) {
         cellStyle: { textAlign: 'center' }
     }), []);
 
-    // AAA013Tab의 조회 버튼에서 호출
+    // RPA000Tab의 조회 버튼에서 호출
     const search = useCallback(async (params) => {
         setLoading(true);
         try {
-            const result = await getAAA013List(params);
+            const result = await getRPA000List(params);
             // API가 result.data에 배열을 반환한다는 가정
             const list = result.data ?? [];
 
@@ -47,7 +47,7 @@ export function useAAA013GridColumns(tabId) {
             setAdjustCnt(Number(list[0]?.ADJUST_CNT ?? 0));
             setIsSearched(true);
         } catch (error) {
-            console.error('AAA013 메인 조회 실패', error);
+            console.error('RPA000 메인 조회 실패', error);
             setRowData([]);
             setAdjustCnt(0);
             setIsSearched(false);
@@ -68,17 +68,17 @@ export function useAAA013GridColumns(tabId) {
 }
 ```
 
-## 2. AAA013Tab.jsx 연결 예시
+## 2. RPA000Tab.jsx 연결 예시
 
 ```jsx
-// 기존 formMethods는 useAAA013Search에서 전달받은 객체 사용
+// 기존 formMethods는 useRPA000Search에서 전달받은 객체 사용
 const {
     rowData,
     adjustCnt,
     loading,
     isSearched,
     search
-} = useAAA013GridColumns(tabId);
+} = useRPA000GridColumns(tabId);
 
 const handleSearch = async () => {
     await search(formMethods.getValues());
@@ -92,7 +92,7 @@ const handleSearch = async () => {
 
 ## 주의사항
 
-- `useAAA013GridColumns`를 Tab과 TableComp에서 각각 호출하면 **조회 상태가 공유되지 않습니다**. Tab에서 조회한 `rowData`를 TableComp에 Props로 전달하세요. TableComp에서 컬럼만 가져오기 위해 Hook을 호출하는 기존 구조는 유지할 수 있습니다.
+- `useRPA000GridColumns`를 Tab과 TableComp에서 각각 호출하면 **조회 상태가 공유되지 않습니다**. Tab에서 조회한 `rowData`를 TableComp에 Props로 전달하세요. TableComp에서 컬럼만 가져오기 위해 Hook을 호출하는 기존 구조는 유지할 수 있습니다.
 - `ADJUST_CNT`는 전체 보정 가능 건수가 각 조회 행에 반복되어 내려온다는 가정입니다. **조회 행이 0개면 0으로 표시**됩니다.
-- API 이름 `getAAA013List`, import 경로, 응답 `result.data`, 컬럼 field 이름, 스타일은 예시이므로 실제 프로젝트와 일치시켜야 합니다.
+- API 이름 `getRPA000List`, import 경로, 응답 `result.data`, 컬럼 field 이름, 스타일은 예시이므로 실제 프로젝트와 일치시켜야 합니다.
 - `columnDefs`와 `defaultColDef`의 **기존 구현을 덮어쓰지 말고 유지**하세요.

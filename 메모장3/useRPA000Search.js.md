@@ -1,4 +1,4 @@
-# useAAA013Search.js — RHF 단일 조회조건 관리
+# useRPA000Search.js — RHF 단일 조회조건 관리
 
 > 기존 초기 필터 `const [filters] = useState(createInitialFilters)`는 유지하되, 화면의 변경값은 React Hook Form의 `formMethods`만 사용합니다. SearchFilterComp / SearchConditionForm에 동일한 `formMethods`를 통째로 전달하세요. API 요청 날짜 변환은 Fetch Hook에서 처리하고, 초기 조회값을 월 `YYYYMM`, 주차 `YYYYww`로 Dayjs 변환합니다.
 
@@ -19,7 +19,7 @@ const createInitialFilters = () => ({
     inboundDemandWeek: null
 });
 
-export function useAAA013Search() {
+export function useRPA000Search() {
     // 기존 퍼블리싱의 초기 필터 상태는 유지 (변경 setter는 사용하지 않음)
     const [filters] = useState(createInitialFilters);
     const formMethods = useForm({ defaultValues: createInitialFilters() });

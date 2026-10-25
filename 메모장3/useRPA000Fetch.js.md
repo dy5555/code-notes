@@ -1,4 +1,4 @@
-# useAAA013Fetch.js — 회사 Tab 호출 패턴
+# useRPA000Fetch.js — 회사 Tab 호출 패턴
 
 > API 호출만 담당. 이미 작성된 실제 API 함수명을 import해서 사용. 아래 함수명은 예시.
 
@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 // 실제 프로젝트에서 만들어 둔 API 함수 import
 // import { fetchaaa01301, fetchaaa01302, fetchaaa01303, fetchaaa01304, fetchaaa01305 } from '실제 API 경로';
 
-export function useAAA013Fetch(tabId) {
+export function useRPA000Fetch(tabId) {
     const [somMonth, setSomMonth] = useState(null);
     const [searchParams, setSearchParams] = useState(null);
     const [searchTrigger, setSearchTrigger] = useState(0);
@@ -20,7 +20,7 @@ export function useAAA013Fetch(tabId) {
         data: initialData = [],
         isSuccess: isInitialSuccess
     } = useQuery({
-        queryKey: ['AAA013_INITIAL', tabId],
+        queryKey: ['RPA000_INITIAL', tabId],
         queryFn: async () => {
             const result = await fetchaaa01301({});
             return result.data ?? [];
@@ -37,7 +37,7 @@ export function useAAA013Fetch(tabId) {
         isSuccess: isSomAvailableMonthSuccess,
         isLoading: isSomAvailableMonthLoading
     } = useQuery({
-        queryKey: ['AAA013_SOM_AVAILABLE_MONTHS'],
+        queryKey: ['RPA000_SOM_AVAILABLE_MONTHS'],
         queryFn: async () => {
             const result = await fetchaaa01305({});
             return result.data ?? [];
@@ -53,7 +53,7 @@ export function useAAA013Fetch(tabId) {
         data: somCodeData = [],
         isSuccess: isSomSuccess
     } = useQuery({
-        queryKey: ['AAA013_SOM', tabId, somMonth],
+        queryKey: ['RPA000_SOM', tabId, somMonth],
         queryFn: async () => {
             if (!somMonth) return [];
             const result = await fetchaaa01302({ somMonth: somMonth });
@@ -71,7 +71,7 @@ export function useAAA013Fetch(tabId) {
         data: rowData = [],
         isLoading
     } = useQuery({
-        queryKey: ['AAA013_GRID', tabId, searchParams, searchTrigger],
+        queryKey: ['RPA000_GRID', tabId, searchParams, searchTrigger],
         queryFn: async () => {
             if (!searchParams) return [];
             const params = {
@@ -140,11 +140,11 @@ export function useAAA013Fetch(tabId) {
 ## 역할/연결
 
 ```text
-AAA013.jsx
-  └─ useAAA013Search()   // 검색조건 관리
+RPA000.jsx
+  └─ useRPA000Search()   // 검색조건 관리
         ↓ props
-AAA013Tab.jsx
-  └─ useAAA013Fetch(tabId)
+RPA000Tab.jsx
+  └─ useRPA000Fetch(tabId)
        ├─ aaa01 → initialData → applyInitialData()
        ├─ aaa05 → somAvailableMonthData → applyAvailableSomMonths() (최초 1회)
        ├─ aaa02 → somCodeData → applySomCodes()

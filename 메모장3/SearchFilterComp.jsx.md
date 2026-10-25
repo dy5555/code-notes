@@ -81,11 +81,11 @@ SearchFilterComp.propTypes = {
 
 ## 조회 버튼 비활성화
 
-기존 공통 `SearchConditionForm`은 `disabled` prop을 지원하므로 수정하지 않습니다. 기존 `disabledSearchBox`를 `useAAA013Search`에서 관리하고, SOM 코드 목록이 없을 때 true로 설정해 `SearchConditionForm disabled={disabledSearchBox}`로 전달합니다. 이 문서의 JSX는 연결 예시이며 회사의 실제 UI를 교체하지 마세요.
+기존 공통 `SearchConditionForm`은 `disabled` prop을 지원하므로 수정하지 않습니다. 기존 `disabledSearchBox`를 `useRPA000Search`에서 관리하고, SOM 코드 목록이 없을 때 true로 설정해 `SearchConditionForm disabled={disabledSearchBox}`로 전달합니다. 이 문서의 JSX는 연결 예시이며 회사의 실제 UI를 교체하지 마세요.
 
 ## 재고조회 월 상한 연결
 
-`useAAA013Search()`가 기존 `initialFiltersRef.current.stockMonth`에서 반환하는 `initialStockMonth`를 `AAA013.jsx`의 기존 `getPaneProps()`를 통해 `AAA013Tab.jsx`에 전달하고, 다시 `SearchFilterComp`로 전달하세요. 기존 재고조회 월 DatePicker에만 위 `disabledDate`를 추가합니다. 초기 조회 월은 변경하지 않으며 다른 월 선택에도 상한이 움직이지 않습니다.
+`useRPA000Search()`가 기존 `initialFiltersRef.current.stockMonth`에서 반환하는 `initialStockMonth`를 `RPA000.jsx`의 기존 `getPaneProps()`를 통해 `RPA000Tab.jsx`에 전달하고, 다시 `SearchFilterComp`로 전달하세요. 기존 재고조회 월 DatePicker에만 위 `disabledDate`를 추가합니다. 초기 조회 월은 변경하지 않으며 다른 월 선택에도 상한이 움직이지 않습니다.
 
 ## 판매실적 월 상한 연결
 
@@ -94,7 +94,7 @@ SearchFilterComp.propTypes = {
 ## 연결 흐름
 
 ```text
-AAA013Tab.jsx
+RPA000Tab.jsx
   onSomMonthChange(newMonth)
     ├─ handleSomMonthChange(newMonth)  // somCd 및 옵션 초기화
     └─ setSomMonth(newMonth)          // Fetch Hook에서 SOM 코드 재조회

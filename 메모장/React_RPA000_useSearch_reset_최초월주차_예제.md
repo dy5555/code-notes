@@ -1,4 +1,4 @@
-# AAA013 useSearch - 최초 월·주차 조회 및 초기화
+# RPA000 useSearch - 최초 월·주차 조회 및 초기화
 
 기존 `useForm`, `reset()`, `resetFilters()` 구조를 유지한 예제입니다.
 
@@ -12,7 +12,7 @@ import isoWeekYear from 'dayjs/plugin/isoWeekYear';
 dayjs.extend(isoWeek);
 dayjs.extend(isoWeekYear);
 
-export function useAAA013Search() {
+export function useRPA000Search() {
 
     // 1. API에서 조회한 최초 월·주차 보관
     // 사용자가 검색조건을 변경해도 이 값은 유지됨
