@@ -1,7 +1,7 @@
 # useAAA013Fetch.js — API 호출 전담 Hook (풀코드)
 
 메모장3 대비 수정
-- 사내 공통 `toast`, API 함수 import 추가 (react-toastify 사용 안 함)
+- 사내 공통 `toast`(`signlw`), API 함수 import 추가 (react-toastify 사용 안 함)
 - 사내 toast 사용법 유지: `toast.loading(msg, 0)` → `finally`에서 `toast.destroy()`
 - 메인 조회 실패 시 `toast.error` 표시, 실패 시 토스트 중복 방지를 위해 `retry: false`
 - 주차(`YYYYww`) 포맷은 변경하지 않음 (규칙 확정 전 스킵)
@@ -9,8 +9,7 @@
 ```jsx
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-// TODO: 다른 화면에서 쓰는 사내 공통 toast import 경로로 교체하세요.
-import { toast } from '@/utils/toast';
+import { toast } from 'signlw';
 // API 파일 경로는 실제 프로젝트 위치에 맞추세요.
 import {
     fetchaaa01301,
@@ -154,6 +153,5 @@ export function useAAA013Fetch(tabId) {
 }
 ```
 
-- `toast` import 경로(`@/utils/toast`)는 임시값입니다. 실제 사내 공통 경로로 바꾸세요.
 - 사내 toast에 `error` 함수가 없으면 해당 화면에서 쓰는 오류 알림 함수로 바꾸세요.
 - `fetchaaa01301~05` 함수명과 `result.data` 응답 형식은 실제 API 규격과 대조가 필요합니다.
