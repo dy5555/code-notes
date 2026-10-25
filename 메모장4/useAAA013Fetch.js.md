@@ -2,7 +2,8 @@
 
 메모장3 대비 수정
 - 사내 공통 `toast`(`signlw`), API 함수 import 추가 (react-toastify 사용 안 함)
-- 사내 toast 사용법 유지: `toast.loading(msg, 0)` → `finally`에서 `toast.destroy()`
+- 사내 toast 사용법 유지: `toast.loading(msg, 0)` → 응답 후 `toast.destroy()`로 닫고 결과 토스트 표시
+- 결과 토스트: 성공 `toast.success('조회를 완료했습니다.')`, 결과 없음 `toast.warning`, 오류 `toast.error`
 - 메인 조회 실패 시 `toast.error` 표시, 실패 시 토스트 중복 방지를 위해 `retry: false`
 - 주차(`YYYYww`) 포맷은 변경하지 않음 (규칙 확정 전 스킵)
 
@@ -94,18 +95,23 @@ export function useAAA013Fetch(tabId) {
             };
 
             toast.loading('조회 중입니다.', 0);
+            let result;
             try {
-                const result = await fetchaaa01303(params);
-                if (!result.data?.length) {
-                    toast.info('조회결과가 존재하지 않습니다.');
-                }
-                return result.data ?? [];
+                result = await fetchaaa01303(params);
             } catch (error) {
+                toast.destroy(); // 로딩 토스트 먼저 닫고 결과 토스트 표시
                 toast.error('조회 중 오류가 발생했습니다.');
                 throw error;
-            } finally {
-                toast.destroy();
             }
+
+            toast.destroy();
+            const list = result.data ?? [];
+            if (list.length === 0) {
+                toast.warning('조회결과가 존재하지 않습니다.');
+            } else {
+                toast.success('조회를 완료했습니다.');
+            }
+            return list;
         },
         enabled: !!searchParams,
         retry: false, // 실패 시 토스트 중복 방지
@@ -153,5 +159,4 @@ export function useAAA013Fetch(tabId) {
 }
 ```
 
-- 사내 toast에 `error` 함수가 없으면 해당 화면에서 쓰는 오류 알림 함수로 바꾸세요.
 - `fetchaaa01301~05` 함수명과 `result.data` 응답 형식은 실제 API 규격과 대조가 필요합니다.
