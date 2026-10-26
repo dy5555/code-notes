@@ -3,6 +3,7 @@
 메모장3 대비 수정
 - 사내 공통 `toast`(`signlw`), API 함수 import 추가 (react-toastify 사용 안 함)
 - 사내 toast 사용법 유지: `toast.loading(msg, 0)` → 응답 후 `toast.destroy()`로 닫고 결과 토스트 표시
+- 조회 파라미터 변환을 `requestParams`로 분리해 반환 (엑셀 다운로드에서 같은 조건 사용)
 - 결과 토스트: 성공 `toast.success('조회를 완료했습니다.')`, 결과 없음 `toast.warning`, 오류 `toast.error`
 - 메인 조회 실패 시 `toast.error` 표시, 실패 시 토스트 중복 방지를 위해 `retry: false`
 - 주차(`YYYYww`) 포맷은 변경하지 않음 (규칙 확정 전 스킵)
@@ -77,6 +78,18 @@ export function useAAA013Fetch(tabId) {
         gcTime: 5 * 60 * 1000
     });
 
+    // 조회·엑셀 다운로드 공통 요청 파라미터 (Dayjs → 문자열)
+    const requestParams = searchParams
+        ? {
+            ...searchParams,
+            stockMonth: searchParams.stockMonth?.format('YYYYMM') ?? null,
+            salesDemandWeek: searchParams.salesDemandWeek?.format('YYYYww') ?? null,
+            somMonth: searchParams.somMonth?.format('YYYYMM') ?? null,
+            salesResultMonth: searchParams.salesResultMonth?.format('YYYYMM') ?? null,
+            inboundDemandWeek: searchParams.inboundDemandWeek?.format('YYYYww') ?? null
+        }
+        : null;
+
     // aaa03: 조회 버튼으로 실행하는 메인 그리드
     const {
         data: rowData = [],
@@ -84,20 +97,12 @@ export function useAAA013Fetch(tabId) {
     } = useQuery({
         queryKey: ['AAA013_GRID', tabId, searchParams, searchTrigger],
         queryFn: async () => {
-            if (!searchParams) return [];
-            const params = {
-                ...searchParams,
-                stockMonth: searchParams.stockMonth?.format('YYYYMM') ?? null,
-                salesDemandWeek: searchParams.salesDemandWeek?.format('YYYYww') ?? null,
-                somMonth: searchParams.somMonth?.format('YYYYMM') ?? null,
-                salesResultMonth: searchParams.salesResultMonth?.format('YYYYMM') ?? null,
-                inboundDemandWeek: searchParams.inboundDemandWeek?.format('YYYYww') ?? null
-            };
+            if (!requestParams) return [];
 
             toast.loading('조회 중입니다.', 0);
             let result;
             try {
-                result = await fetchaaa01303(params);
+                result = await fetchaaa01303(requestParams);
             } catch (error) {
                 toast.destroy(); // 로딩 토스트 먼저 닫고 결과 토스트 표시
                 toast.error('조회 중 오류가 발생했습니다.');
@@ -150,6 +155,7 @@ export function useAAA013Fetch(tabId) {
         rowData,
         isLoading,
         isSearched,
+        requestParams,
         setSomMonth,
         search,
         clearGrid,

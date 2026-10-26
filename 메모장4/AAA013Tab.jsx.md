@@ -5,6 +5,7 @@
 - 조회·초기화 버튼은 이 파일, 일괄보정 버튼·보정 건수는 메모장3대로 `TableComp`에 유지
 - 일괄보정 실패 시 오류 알림 (try/catch)
 - 조회 중(`isLoading`)에는 일괄보정 버튼 비활성화
+- 엑셀 다운로드용으로 마지막 조회 조건(`requestParams`)을 TableComp에 `excelParams`로 전달
 
 ```jsx
 import React, { useEffect, useRef } from 'react';
@@ -47,7 +48,8 @@ export default function AAA013Tab({
         search,
         clearGrid,
         batchAdjust,
-        isAdjusting
+        isAdjusting,
+        requestParams
     } = useAAA013Fetch(tabId);
 
     // aaa01 최초 월·주차: 한 번만 적용
@@ -181,6 +183,7 @@ export default function AAA013Tab({
                     isSearched={isSearched}
                     handleBatchAdjust={handleBatchAdjust}
                     isAdjusting={isAdjusting}
+                    excelParams={requestParams}
                 />
             </Card>
         </div>
