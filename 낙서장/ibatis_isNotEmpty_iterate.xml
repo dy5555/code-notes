@@ -1,11 +1,10 @@
 <!--
-  arrDimList 항목 중 dim_cols 값이 있는 것만 || '^' || 값 으로 이어 붙임 (iBATIS 2.x)
-  - 리스트가 비어 있거나 [{dim_cols=}] 처럼 값이 빈 항목만 있으면 아무것도 안 들어감
+  arrDimList가 있으면 || '^' || dim_cols 값 으로 이어 붙임 (iBATIS 2.x)
+  - 빈 dim_cols 항목은 Java(dimListFilter.java)에서 미리 걸러서 넘김
+  - 리스트가 비어 있으면 통째로 생략됨
 -->
 <isNotEmpty property="arrDimList">
     <iterate property="arrDimList">
-        <isNotEmpty property="arrDimList[].dim_cols">
-            || '^' || $arrDimList[].dim_cols$
-        </isNotEmpty>
+        || '^' || $arrDimList[].dim_cols$
     </iterate>
 </isNotEmpty>
