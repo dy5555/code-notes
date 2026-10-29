@@ -1,0 +1,15 @@
+<!--
+  XML만으로 빈 dim_cols 항목 처리 (iBATIS 2.x, Java 필터 없이)
+  - []                         → 생략
+  - [{dim_cols=}]              → 첫 항목 값이 비어서 생략
+  - [{dim_cols=DEPT_CD}, ...]  → || '^' || 값 으로 이어 붙임
+  주의: 첫 항목만 체크하므로 중간에 빈 값이 섞인 경우는 못 거름
+        바깥 isNotEmpty는 빈 리스트에서 [0] 접근 에러 방지용이라 꼭 필요
+-->
+<isNotEmpty property="arrDimList">
+    <isNotEmpty property="arrDimList[0].dim_cols">
+        <iterate property="arrDimList">
+            || '^' || $arrDimList[].dim_cols$
+        </iterate>
+    </isNotEmpty>
+</isNotEmpty>
