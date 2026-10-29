@@ -1,0 +1,6 @@
+<!-- arrDimList가 있으면 각 항목의 dim_cols 값을 넣고, 없으면 아무것도 안 넣음 (iBATIS 2.x) -->
+<isNotEmpty property="arrDimList">
+    <iterate property="arrDimList">
+        $arrDimList[].dim_cols$
+    </iterate>
+</isNotEmpty>
