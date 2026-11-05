@@ -64,10 +64,10 @@ export default function TableComp({
                 <Typography.Text strong>조회 결과</Typography.Text>
                 <Space>
                     <ToolbarExcel
-                        url={EXCEL_URL}
-                        params={excelParams ?? {}}
-                        columns={columnDefs}
-                        fileName={EXCEL_FILE_NAME}
+                        url={EXCEL_URL} // 엑셀 다운로드 API 주소 (사내 ToolbarExcel 규약상 서버에서 엑셀 생성)
+                        params={excelParams ?? {}} // 마지막 조회 조건, 조회 전(null)이면 빈 객체로 전달해 오류 방지
+                        columns={columnDefs} // 그리드와 같은 컬럼 정의 공유: 화면·엑셀 컬럼 항상 일치
+                        fileName={EXCEL_FILE_NAME} // 다운로드 파일명
                     />
                     <Button
                         type="primary"
@@ -83,12 +83,12 @@ export default function TableComp({
             </div>
             <div className="ag-theme-alpine" style={{ height: GRID_HEIGHT, width: '100%' }}>
                 <AgGridReact
-                    rowData={rowData}
-                    columnDefs={columnDefs}
-                    defaultColDef={defaultColDef}
-                    getRowId={getRowId}
-                    loading={isLoading}
-                    overlayNoRowsTemplate={`<span>${noRowsMsg}</span>`}
+                    rowData={rowData} // aaa03 조회 결과
+                    columnDefs={columnDefs} // 그리드 컬럼 정의
+                    defaultColDef={defaultColDef} // 전체 컬럼 공통 옵션 (정렬·너비조절)
+                    getRowId={getRowId} // 행 고유키 지정: 재조회 시 같은 행 재사용해 깜빡임·선택 꼬임 방지
+                    loading={isLoading} // 조회 중 로딩 오버레이 표시
+                    overlayNoRowsTemplate={`<span>${noRowsMsg}</span>`} // 데이터 없을 때 문구 (조회 전/결과 없음 구분)
                 />
             </div>
         </>

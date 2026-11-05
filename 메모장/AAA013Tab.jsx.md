@@ -156,14 +156,14 @@ export default function AAA013Tab({
             <Typography.Title level={4}>SOM 코드 보정</Typography.Title>
             <Card size="small" style={{ marginBottom: 12 }}>
                 <SearchFilterComp
-                    filters={filters}
-                    formMethods={formMethods}
-                    somCodeList={somCodeList}
-                    availableSomMonths={availableSomMonths}
-                    isSomAvailableMonthLoading={isSomAvailableMonthLoading}
-                    initialStockMonth={initialStockMonth}
-                    initialSalesResultMonth={initialSalesResultMonth}
-                    onSomMonthChange={onSomMonthChange}
+                    filters={filters} // 퍼블리셔 초기 필터 원본: 규약상 props 구조 유지용
+                    formMethods={formMethods} // RHF 폼 객체: 각 필드를 Controller로 바인딩하는 기준
+                    somCodeList={somCodeList} // SOM CD Select 옵션 목록
+                    availableSomMonths={availableSomMonths} // SOM 월 달력에서 선택 가능한 년월만 활성화
+                    isSomAvailableMonthLoading={isSomAvailableMonthLoading} // aaa05 로딩 중엔 SOM 월 입력 잠금 (빈 목록으로 전부 막히는 것 방지)
+                    initialStockMonth={initialStockMonth} // 재고조회 월 달력 상한
+                    initialSalesResultMonth={initialSalesResultMonth} // 판매실적 월 달력 상한
+                    onSomMonthChange={onSomMonthChange} // SOM 월 변경 콜백: 컴포넌트는 알리기만, 코드 초기화·재조회는 Tab이 처리
                 />
                 <Space style={{ marginTop: 12, width: '100%', justifyContent: 'flex-end' }}>
                     <Button onClick={handleReset}>초기화</Button>
@@ -178,12 +178,12 @@ export default function AAA013Tab({
             </Card>
             <Card size="small">
                 <TableComp
-                    rowData={rowData}
-                    isLoading={isLoading}
-                    isSearched={isSearched}
-                    handleBatchAdjust={handleBatchAdjust}
-                    isAdjusting={isAdjusting}
-                    excelParams={requestParams}
+                    rowData={rowData} // aaa03 조회 결과: 그리드 데이터 + 보정 건수 계산 기준
+                    isLoading={isLoading} // 조회 중 표시 + 조회 중 일괄보정 막기용
+                    isSearched={isSearched} // 조회 전/결과 없음 문구 구분용
+                    handleBatchAdjust={handleBatchAdjust} // 일괄보정 실행: 확인창·API·재조회 흐름은 Tab이 담당, 버튼만 컴포넌트에
+                    isAdjusting={isAdjusting} // 일괄보정 처리 중 버튼 잠금·문구 변경용
+                    excelParams={requestParams} // 마지막 조회 조건(서버 전송 형식): 엑셀을 그리드와 같은 조건으로 받기 위함
                 />
             </Card>
         </div>
