@@ -54,21 +54,25 @@ this.fn_getCellBg = function(nRow, strColId)
     var strHalfGbn   = this.ds_list.getColumn(nRow, "COL_2");
     var strGbn       = this.ds_list.getColumn(nRow, "COL_3");
 
-    // COL_1, COL_2 / RANK 외 행 : 적용 안 함
-    if (strColId == "COL_1" || strColId == "COL_2") return "";
-    if (strGbn != "RANK") return "";
+    // RANK 행 (COL_3 부터) : 배경색 / 증감 + RANK 데이터 컬럼 : 배경색 + 이미지
+    if (strGbn == "RANK" && strColId != "COL_1" && strColId != "COL_2")
+    {
+        // COL_3 이거나 증감 행이 아니면 색상만
+        if (strColId == "COL_3" || strHalfGbn != "증감") return strRankColor;
 
-    // RANK 행 : COL_3 이거나 증감 행이 아니면 색상만
-    if (strColId == "COL_3" || strHalfGbn != "증감") return strRankColor;
+        var nVal   = nexacro.toNumber(this.ds_list.getColumn(nRow, strColId), 0);
+        var strImg = "img_3.png";                           // 0
 
-    // 증감 + RANK 행 데이터 컬럼 : 색상 + 값에 따라 이미지
-    var nVal   = nexacro.toNumber(this.ds_list.getColumn(nRow, strColId), 0);
-    var strImg = "img_3.png";                               // 0
+        if (nVal > 0)       strImg = "img_1.png";           // 양수
+        else if (nVal < 0)  strImg = "img_2.png";           // 음수
 
-    if (nVal > 0)       strImg = "img_1.png";               // 양수
-    else if (nVal < 0)  strImg = "img_2.png";               // 음수
+        return strRankColor + " URL('theme://images/" + strImg + "') no-repeat left middle";
+    }
 
-    return strRankColor + " URL('theme://images/" + strImg + "') no-repeat left middle";
+    // ↓ 기존 다른 조건들
+    // ...
+
+    return "";
 };
 
 /**
