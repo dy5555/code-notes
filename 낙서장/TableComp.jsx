@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react'; // [페이징] useState, useEffect 추가
 import PropTypes from 'prop-types';
-import { Button, Typography, Space } from 'antd';
+import { Button, Typography, Space, Pagination } from 'antd'; // [페이징] Pagination 추가
 
 // 그리드 컬럼
 const columnDefs = [
@@ -19,6 +19,7 @@ const defaultColDef = {
 
 const EXCEL_FILE_NAME = 'SOM코드보정_조회결과';
 const GRID_HEIGHT = 500;
+const PAGE_SIZE = 20; // [페이징] 한 페이지 행 수
 
 // 행 고유키: salesProdId
 const getRowId = (params) => String(params.data.salesProdId);
@@ -36,6 +37,21 @@ export default function TableComp({
     // 그리드 준비 완료 시 api 저장
     const handleGridReady = (params) => {
         gridApi.current = params.api;
+    };
+
+    // [페이징] 현재 페이지 (antd 기준 1부터 시작)
+    const [pageNo, setPageNo] = useState(1);
+
+    // [페이징] 재조회하면 1페이지로 복귀
+    useEffect(() => {
+        setPageNo(1);
+        gridApi.current?.paginationGoToPage(0);
+    }, [rowData]);
+
+    // [페이징] 페이지 이동: antd(1부터) → AG Grid(0부터) 변환
+    const handlePageChange = (nextPageNo) => {
+        setPageNo(nextPageNo);
+        gridApi.current?.paginationGoToPage(nextPageNo - 1);
     };
 
     // 화면 그리드 기준 엑셀 다운로드 함수
@@ -79,7 +95,21 @@ export default function TableComp({
                     getRowId={getRowId} // 행 고유키 지정: 재조회 시 같은 행 재사용해 깜빡임·선택 꼬임 방지
                     loading={isLoading} // 조회 중 로딩 오버레이 표시
                     overlayNoRowsTemplate={`<span>${noRowsMsg}</span>`} // 데이터 없을 때 문구 (조회 전/결과 없음 구분)
-                    onGridReady={handleGridReady} // 그리드 준비 완료 시 api 저장: 엑셀 다운로드에서 그리드 api 사용
+                    onGridReady={handleGridReady} // 그리드 준비 완료 시 api 저장: 엑셀 다운로드·페이지 이동에서 그리드 api 사용
+                    pagination // [페이징] 그리드 페이징 사용
+                    paginationPageSize={PAGE_SIZE} // [페이징] 한 페이지 행 수
+                    suppressPaginationPanel // [페이징] 그리드 기본 페이징 바 숨김: antd Pagination으로 통일
+                />
+            </div>
+            {/* [페이징] 그리드 div 밖 아래쪽, 오른쪽 정렬 */}
+            <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+                <Pagination
+                    simple // 페이지 번호 입력 이동 (점퍼 방식)
+                    size="small" // 크기 고정 (퍼블리셔 예제의 size 라디오는 사용 안 함)
+                    current={pageNo} // 현재 페이지
+                    pageSize={PAGE_SIZE} // 한 페이지 행 수
+                    total={(rowData ?? []).length} // 전체 건수: 예제값 9990 대신 조회 결과 건수
+                    onChange={handlePageChange} // 페이지 이동 시 그리드도 같이 이동
                 />
             </div>
         </>
