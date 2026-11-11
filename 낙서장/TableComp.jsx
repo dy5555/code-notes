@@ -104,11 +104,12 @@ export default function TableComp({
             {/* [페이징] 그리드 div 밖 아래쪽, 오른쪽 정렬 */}
             <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
                 <Pagination
-                    simple // 페이지 번호 입력 이동 (점퍼 방식)
                     size="small" // 크기 고정 (퍼블리셔 예제의 size 라디오는 사용 안 함)
                     current={pageNo} // 현재 페이지
                     pageSize={PAGE_SIZE} // 한 페이지 행 수
                     total={(rowData ?? []).length} // 전체 건수: 예제값 9990 대신 조회 결과 건수
+                    showQuickJumper // 페이지 번호 입력 이동칸 표시 (점퍼 방식)
+                    showSizeChanger={false} // 행 수 변경 콤보 숨김
                     onChange={handlePageChange} // 페이지 이동 시 그리드도 같이 이동
                 />
             </div>
