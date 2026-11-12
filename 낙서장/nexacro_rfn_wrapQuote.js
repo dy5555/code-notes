@@ -10,7 +10,9 @@ this.rfn_wrapQuote = function(strVal)
     if (strVal == "All")
         return '';
 
-    var strRtnVal = this.gfn_replace(strVal, 'undefinde', '');
+    var strRtnVal = this.gfn_replace(strVal, 'undefined', '');
+    if (this.gfn_isNull(strRtnVal))
+        strRtnVal = "";
 
     // 콤마로 나눈 뒤 각 값의 앞뒤 공백만 제거 (값 중간 공백은 유지)
     // Nexacro 14에서 String.trim() 미지원 가능성 때문에 정규식 사용
