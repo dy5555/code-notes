@@ -1,15 +1,7 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Typography, Space, Pagination } from 'antd';
-
-// 그리드 컬럼
-const columnDefs = [
-    { headerName: '구분', field: 'category', width: 120 },
-    { headerName: 'SALES_PROD_ID', field: 'salesProdId', width: 180 },
-    { headerName: 'RP_SOM_CD', field: 'rpSomCd', width: 150 },
-    { headerName: '일괄보정여부', field: 'gnlCrrYn', width: 130 },
-    { headerName: '보정 RP_SOM_CD', field: 'tobeRpSomcd', width: 160 }
-];
+// useAAA013GridColumns: 그리드 컬럼 정의 훅 (import 경로는 실제 위치에 맞추세요)
 
 // 전체 컬럼 공통 옵션
 const defaultColDef = {
@@ -31,6 +23,9 @@ export default function TableComp({
     handleBatchAdjust,
     isAdjusting
 }) {
+    // 그리드 컬럼 정의: 컬럼 구성은 컬럼 훅, 페이징(보여줄 행)은 이 컴포넌트에서 담당
+    const gridColumns = useAAA013GridColumns();
+
     // 그리드 api 담을 ref
     const gridApi = useRef(null);
 
@@ -92,7 +87,7 @@ export default function TableComp({
             <div style={{ height: GRID_HEIGHT, width: '100%' }}>
                 <Content.Grid
                     rowData={pageRowList} // [페이징] 전체가 아닌 현재 페이지 행만 전달
-                    columnDefs={columnDefs} // 그리드 컬럼 정의 (엑셀 컬럼·너비도 이 기준)
+                    columnDefs={gridColumns} // 그리드 컬럼 정의 (컬럼 훅에서 가져옴, 엑셀 컬럼·너비도 이 기준)
                     defaultColDef={defaultColDef} // 전체 컬럼 공통 옵션 (정렬·너비조절)
                     getRowId={getRowId} // 행 고유키 지정: 재조회 시 같은 행 재사용해 깜빡임·선택 꼬임 방지
                     loading={isLoading} // 조회 중 로딩 오버레이 표시
