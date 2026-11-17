@@ -4,35 +4,6 @@ import { Controller } from 'react-hook-form';
 import { DatePicker, Form, Select, Radio, Input, Row, Col } from 'antd';
 import { W_OPTS, COMBO_FIELD_NMS, COMBO_LABELS } from '../consts/AAA014Vars';
 
-// 콤보 배치 (3줄: a~e, 4줄: f~h)
-const COMBO_ROW1_TPS = ['A', 'B', 'C', 'D', 'E'];
-const COMBO_ROW2_TPS = ['F', 'G', 'H'];
-
-// 콤보 a~h 공통 필드
-function ComboField({ comboTp, control, options }) {
-    return (
-        <Form.Item label={COMBO_LABELS[comboTp]}>
-            <Controller
-                name={COMBO_FIELD_NMS[comboTp]}
-                control={control}
-                render={({ field }) => (
-                    <Select
-                        {...field}
-                        style={{ width: '100%' }}
-                        options={options}
-                    />
-                )}
-            />
-        </Form.Item>
-    );
-}
-
-ComboField.propTypes = {
-    comboTp: PropTypes.string.isRequired,
-    control: PropTypes.object.isRequired,
-    options: PropTypes.array.isRequired
-};
-
 export default function SearchFilterComp({
     formMethods,
     familyOpts,
@@ -99,20 +70,98 @@ export default function SearchFilterComp({
 
             {/* 3줄: 콤보 a~e */}
             <Row gutter={16}>
-                {COMBO_ROW1_TPS.map((comboTp) => (
-                    <Col key={comboTp} flex="1">
-                        <ComboField comboTp={comboTp} control={control} options={comboOpts[comboTp]} />
-                    </Col>
-                ))}
+                <Col flex="1">
+                    <Form.Item label={COMBO_LABELS.A}>
+                        <Controller
+                            name={COMBO_FIELD_NMS.A}
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} style={{ width: '100%' }} options={comboOpts.A} />
+                            )}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col flex="1">
+                    <Form.Item label={COMBO_LABELS.B}>
+                        <Controller
+                            name={COMBO_FIELD_NMS.B}
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} style={{ width: '100%' }} options={comboOpts.B} />
+                            )}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col flex="1">
+                    <Form.Item label={COMBO_LABELS.C}>
+                        <Controller
+                            name={COMBO_FIELD_NMS.C}
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} style={{ width: '100%' }} options={comboOpts.C} />
+                            )}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col flex="1">
+                    <Form.Item label={COMBO_LABELS.D}>
+                        <Controller
+                            name={COMBO_FIELD_NMS.D}
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} style={{ width: '100%' }} options={comboOpts.D} />
+                            )}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col flex="1">
+                    <Form.Item label={COMBO_LABELS.E}>
+                        <Controller
+                            name={COMBO_FIELD_NMS.E}
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} style={{ width: '100%' }} options={comboOpts.E} />
+                            )}
+                        />
+                    </Form.Item>
+                </Col>
             </Row>
 
             {/* 4줄: 콤보 f~h + rp cd 검색박스 */}
             <Row gutter={16}>
-                {COMBO_ROW2_TPS.map((comboTp) => (
-                    <Col key={comboTp} flex="1">
-                        <ComboField comboTp={comboTp} control={control} options={comboOpts[comboTp]} />
-                    </Col>
-                ))}
+                <Col flex="1">
+                    <Form.Item label={COMBO_LABELS.F}>
+                        <Controller
+                            name={COMBO_FIELD_NMS.F}
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} style={{ width: '100%' }} options={comboOpts.F} />
+                            )}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col flex="1">
+                    <Form.Item label={COMBO_LABELS.G}>
+                        <Controller
+                            name={COMBO_FIELD_NMS.G}
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} style={{ width: '100%' }} options={comboOpts.G} />
+                            )}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col flex="1">
+                    <Form.Item label={COMBO_LABELS.H}>
+                        <Controller
+                            name={COMBO_FIELD_NMS.H}
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} style={{ width: '100%' }} options={comboOpts.H} />
+                            )}
+                        />
+                    </Form.Item>
+                </Col>
                 <Col flex="1">
                     <Form.Item label="rp cd">
                         {/* TODO: 검색 로직 추후 */}
