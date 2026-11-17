@@ -48,18 +48,16 @@ export const COMBO_TITLES = {
   H: 'h select',
 };
 
-// 콤보 조회 조건 9개 행 (Nexacro 공통 콤보 Dataset 행과 같은 역할)
+// 콤보 조회 조건 9개 행 (Nexacro 공통 콤보 Dataset 행과 같은 역할, 키: 콤보 구분)
 // - 프론트 전용 (서버로 안 보냄)
-//     COMBO_TP      : 콤보 구분
 //     FAMILY_COLUMN : family 조건 컬럼 (값 있으면 in_cont에 family 조건 추가)
 //     PRNT_COMBO_TP : 부모 콤보 구분 (부모 값으로 조회 조건 추가)
 //     PRNT_COLUMN   : 부모 조건 컬럼
 // - 서버 전송 (공통 쿼리 파라미터명 그대로, 소문자)
 //     tablenm, column0, column1, gts_typ_cd, sys_typ_cd, cd_div, sort_type, in_cont
 // - 테이블, 컬럼, 조건 값은 임시 값 → 실제 값으로 교체
-export const COMBO_DEFS = [
-  {
-    COMBO_TP: 'FAMILY',
+export const COMBO_DEFS = {
+  FAMILY: {
     FAMILY_COLUMN: '',
     PRNT_COMBO_TP: '',
     PRNT_COLUMN: '',
@@ -72,8 +70,7 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-  {
-    COMBO_TP: 'A',
+  A: {
     FAMILY_COLUMN: 'FAMILY_CD',
     PRNT_COMBO_TP: '',
     PRNT_COLUMN: '',
@@ -86,8 +83,7 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-  {
-    COMBO_TP: 'B',
+  B: {
     FAMILY_COLUMN: 'FAMILY_CD',
     PRNT_COMBO_TP: 'A',
     PRNT_COLUMN: 'A_CD',
@@ -100,8 +96,7 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-  {
-    COMBO_TP: 'C',
+  C: {
     FAMILY_COLUMN: 'FAMILY_CD',
     PRNT_COMBO_TP: 'B',
     PRNT_COLUMN: 'B_CD',
@@ -114,8 +109,7 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-  {
-    COMBO_TP: 'D',
+  D: {
     FAMILY_COLUMN: 'FAMILY_CD',
     PRNT_COMBO_TP: 'C',
     PRNT_COLUMN: 'C_CD',
@@ -128,8 +122,7 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-  {
-    COMBO_TP: 'E',
+  E: {
     FAMILY_COLUMN: 'FAMILY_CD',
     PRNT_COMBO_TP: 'D',
     PRNT_COLUMN: 'D_CD',
@@ -142,8 +135,7 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-  {
-    COMBO_TP: 'F',
+  F: {
     FAMILY_COLUMN: 'FAMILY_CD',
     PRNT_COMBO_TP: 'E',
     PRNT_COLUMN: 'E_CD',
@@ -156,8 +148,7 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-  {
-    COMBO_TP: 'G',
+  G: {
     FAMILY_COLUMN: 'FAMILY_CD',
     PRNT_COMBO_TP: 'F',
     PRNT_COLUMN: 'F_CD',
@@ -170,8 +161,7 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-  {
-    COMBO_TP: 'H',
+  H: {
     FAMILY_COLUMN: 'FAMILY_CD',
     PRNT_COMBO_TP: '',
     PRNT_COLUMN: '',
@@ -184,7 +174,4 @@ export const COMBO_DEFS = [
     sort_type: '',
     in_cont: '',
   },
-];
-
-// COMBO_TP로 행 찾기용 ({ FAMILY: {...}, A: {...}, ... })
-export const COMBO_DEF_MAP = Object.fromEntries(COMBO_DEFS.map((comboDef) => [comboDef.COMBO_TP, comboDef]));
+};
