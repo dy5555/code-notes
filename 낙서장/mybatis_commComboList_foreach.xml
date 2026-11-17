@@ -39,6 +39,10 @@
                 </choose>
                   FROM ${def.TableNm}
                  WHERE 1 = 1
+                <!-- family 조건: a~h에만 들어감 (family 목록 정의에는 FAMILY_CD 없음). 컬럼명은 실제 값으로 교체 -->
+                <if test="def.FAMILY_CD != null and def.FAMILY_CD != ''">
+                   AND FAMILY_CD = #{def.FAMILY_CD}
+                </if>
                 <if test="def.GTS_TYP_CD != null and def.GTS_TYP_CD != ''">
                    AND GTS_TYP_CD = #{def.GTS_TYP_CD}
                 </if>
