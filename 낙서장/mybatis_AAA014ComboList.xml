@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xxx.aaa014.AAA014Mapper">
+
+    <!--
+        AAA014 콤보 일괄 조회 (화면 전용, UNION ALL 쿼리 1번)
+        - 파라미터
+            family       : family 값 (a~h 조건)
+            inclFamilyYn : 'Y'면 family 목록도 같이 조회 (최초 진입), 'N'이면 a~h만 (family 변경 시)
+        - 응답: COMBO_TP, CD, NM, PRNT_CD
+        - 콤보별 정렬은 UNION 안에서 ORDER BY를 못 쓰므로 ROW_NUMBER() OVER (ORDER BY ...)로 순번(SORT_NO) 매김
+        - 테이블, 컬럼, 조건, 정렬은 임시 값 → 실제 값으로 교체
+    -->
+    <select id="selectComboList" parameterType="map" resultType="map">
+        SELECT COMBO_TP
+             , CD
+             , NM
+             , PRNT_CD
+          FROM (
+            <!-- family 목록 (family 조건 없음) -->
+            <if test="inclFamilyYn == 'Y'">
+                SELECT 'FAMILY'  AS COMBO_TP
+                     , FAMILY_CD AS CD
+                     , FAMILY_NM AS NM
+                     , NULL      AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY FAMILY_CD) AS SORT_NO
+                  FROM TB_FAMILY
+                 WHERE 1 = 1
+                UNION ALL
+            </if>
+
+                <!-- a (부모 없음) -->
+                SELECT 'A'   AS COMBO_TP
+                     , A_CD  AS CD
+                     , A_NM  AS NM
+                     , NULL  AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY DECODE(A_CD, 'X', 1, 'Y', 2, 9), A_NM) AS SORT_NO
+                  FROM TB_A
+                 WHERE FAMILY_CD = #{family}
+
+                UNION ALL
+
+                <!-- b (부모 a) -->
+                SELECT 'B'   AS COMBO_TP
+                     , B_CD  AS CD
+                     , B_NM  AS NM
+                     , A_CD  AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY B_CD DESC) AS SORT_NO
+                  FROM TB_B
+                 WHERE FAMILY_CD = #{family}
+
+                UNION ALL
+
+                <!-- c (부모 b) -->
+                SELECT 'C'   AS COMBO_TP
+                     , C_CD  AS CD
+                     , C_NM  AS NM
+                     , B_CD  AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY C_CD) AS SORT_NO
+                  FROM TB_C
+                 WHERE FAMILY_CD = #{family}
+
+                UNION ALL
+
+                <!-- d (부모 c) -->
+                SELECT 'D'   AS COMBO_TP
+                     , D_CD  AS CD
+                     , D_NM  AS NM
+                     , C_CD  AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY D_CD) AS SORT_NO
+                  FROM TB_D
+                 WHERE FAMILY_CD = #{family}
+
+                UNION ALL
+
+                <!-- e (부모 d) -->
+                SELECT 'E'   AS COMBO_TP
+                     , E_CD  AS CD
+                     , E_NM  AS NM
+                     , D_CD  AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY E_CD) AS SORT_NO
+                  FROM TB_E
+                 WHERE FAMILY_CD = #{family}
+
+                UNION ALL
+
+                <!-- f (부모 e) -->
+                SELECT 'F'   AS COMBO_TP
+                     , F_CD  AS CD
+                     , F_NM  AS NM
+                     , E_CD  AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY F_CD) AS SORT_NO
+                  FROM TB_F
+                 WHERE FAMILY_CD = #{family}
+
+                UNION ALL
+
+                <!-- g (부모 f) -->
+                SELECT 'G'   AS COMBO_TP
+                     , G_CD  AS CD
+                     , G_NM  AS NM
+                     , F_CD  AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY G_CD) AS SORT_NO
+                  FROM TB_G
+                 WHERE FAMILY_CD = #{family}
+
+                UNION ALL
+
+                <!-- h (독립) -->
+                SELECT 'H'   AS COMBO_TP
+                     , H_CD  AS CD
+                     , H_NM  AS NM
+                     , NULL  AS PRNT_CD
+                     , ROW_NUMBER() OVER (ORDER BY H_NM) AS SORT_NO
+                  FROM TB_H
+                 WHERE FAMILY_CD = #{family}
+          )
+         ORDER BY COMBO_TP, SORT_NO
+    </select>
+
+</mapper>
