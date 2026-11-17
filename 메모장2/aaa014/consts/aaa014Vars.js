@@ -12,14 +12,27 @@ export const W_OPTS = [
 ];
 export const DEFAULT_W = 'w2';
 
-// family solid Radio (기본값 a)
-export const FAMILY_OPTS = [
-  { value: 'a', label: 'a' },
-  { value: 'b', label: 'b' },
-  { value: 'c', label: 'c' },
-  { value: 'd', label: 'd' },
-];
+// family solid Radio 기본값 (목록은 서버 조회)
 export const DEFAULT_FAMILY = 'a';
+
+// family 목록 조회 정의
+// - 화면 진입 시: FAMILY_COMBO_DEF + COMBO_DEFS 한 번에 조회
+// - family 변경 시: COMBO_DEFS만 다시 조회
+export const FAMILY_COMBO_DEF = {
+  comboTp: 'FAMILY',
+  TableNm: 'TB_FAMILY',
+  CodeNm: 'FAMILY_CD',
+  ValueNm: 'FAMILY_NM',
+  PrntCodeNm: '',
+  GTS_TYP_CD: '',
+  SYS_TYP_CD: '',
+  CD_DIV: '',
+  SORT_TYPE: '',
+  IN_CONT: '',
+  EVNT_OBJ_NM: '',
+  SV_OBJ_TXT: '',
+  SC_SEQ: '',
+};
 
 // 연쇄 콤보 순서 (앞 콤보 변경 시 뒤쪽 콤보 ALL 초기화, h는 독립이라 제외)
 export const CHAIN_COMBO_ORDER = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
