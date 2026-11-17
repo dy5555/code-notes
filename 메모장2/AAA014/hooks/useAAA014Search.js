@@ -30,35 +30,38 @@ const escapeSqlVal = (val) => String(val).replace(/'/g, "''");
 // 값이 비어 있는지 (비어 있으면 조건을 붙이지 않음 = 전체)
 const isEmptyVal = (val) => val === null || val === undefined || val === '';
 
-// IN_CONT 자리표시자: {FAMILY}, {A} ~ {F}
-const PLACEHOLDER_REG = /\{([A-Z_]+)\}/g;
+// 콤보별 추가 조건 목록: family + 연쇄 상위 콤보 전부
+// - 조건 컬럼은 각 콤보 데이터셋 행의 COLUMN0 (하위 테이블에 같은 이름으로 있음)
+// - 예) d: family, a, b, c 조건 / h: family 조건만 (독립)
+const getComboConds = (comboTp, familyVal, chainValMap) => {
+    const familyCond = { col: COMBO_DEFS[FAMILY_COMBO_TP].COLUMN0, val: familyVal };
 
-// 데이터셋 행 + 현재 화면 값 → CodeSelect params
-// - IN_CONT를 'AND' 단위로 나눠서, 자리표시자 값이 비어 있는 조건은 빼고 나머지는 값으로 바꿈
-// - 자리표시자가 없는 고정 조건은 그대로 유지
-// - queryDeps: 이 콤보가 쓰는 자리표시자 값 목록 (바뀌면 CodeSelect 재조회)
-const buildComboParams = (comboDef, condVals) => {
-    const usedKeys = [];
+    const chainIdx = CHAIN_COMBO_ORDER.indexOf(comboTp);
+    if (chainIdx < 0) return [familyCond];
 
-    const inCont = comboDef.IN_CONT
-        .split(/(?=\bAND\b)/i)
-        .filter((clause) => {
-            const keys = [...clause.matchAll(PLACEHOLDER_REG)].map(([, key]) => key);
-            usedKeys.push(...keys);
-            return keys.every((key) => !isEmptyVal(condVals[key]));
-        })
-        .map((clause) => clause.replace(PLACEHOLDER_REG, (_, key) => escapeSqlVal(condVals[key])))
-        .join('')
-        .trim();
+    const upperConds = CHAIN_COMBO_ORDER
+        .slice(0, chainIdx)
+        .map((upperComboTp) => ({ col: COMBO_DEFS[upperComboTp].COLUMN0, val: chainValMap[upperComboTp] }));
+
+    return [familyCond, ...upperConds];
+};
+
+// 데이터셋 행 + 추가 조건 → CodeSelect params
+// - 추가 조건을 IN_CONT(고정 조건) 뒤에 붙임 (값이 없으면 안 붙임)
+// - queryDeps: 조건 값이 바뀌면 CodeSelect가 다시 조회하도록 의존값 전달
+const buildComboParams = (comboDef, conds) => {
+    const addCond = conds
+        .filter(({ col, val }) => col && !isEmptyVal(val))
+        .map(({ col, val }) => ` AND ${col} = '${escapeSqlVal(val)}'`)
+        .join('');
 
     return {
         ...comboDef,
-        IN_CONT: inCont,
-        queryDeps: usedKeys.map((key) => (isEmptyVal(condVals[key]) ? null : condVals[key]))
+        IN_CONT: `${comboDef.IN_CONT}${addCond}`.trim(),
+        queryDeps: conds.map(({ val }) => (isEmptyVal(val) ? null : val))
     };
 };
 
-// 공통 콤보 조회 행 → Radio 옵션
 // 응답 필드: CODE(값), VALUE(표시)
 const toOpt = (row) => ({ label: row.VALUE, value: row.CODE });
 
@@ -76,20 +79,16 @@ export function useAAA014Search() {
 
     // 콤보 a~h params ({ A: {...}, B: {...}, ... })
     const comboParams = useMemo(() => {
-        // 자리표시자 값: { FAMILY: 'a', A: 'A1', B: null, ... }
-        const condVals = {
-            [FAMILY_COMBO_TP]: familyVal,
-            ...Object.fromEntries(CHAIN_COMBO_ORDER.map((comboTp, idx) => [comboTp, chainVals[idx]]))
-        };
+        const chainValMap = Object.fromEntries(CHAIN_COMBO_ORDER.map((comboTp, idx) => [comboTp, chainVals[idx]]));
 
         return Object.fromEntries(COMBO_TPS.map((comboTp) => [
             comboTp,
-            buildComboParams(COMBO_DEFS[comboTp], condVals)
+            buildComboParams(COMBO_DEFS[comboTp], getComboConds(comboTp, familyVal, chainValMap))
         ]));
     }, [familyVal, chainVals]);
 
-    // family 목록 조회 params (자리표시자 없음)
-    const familyParams = useMemo(() => buildComboParams(COMBO_DEFS[FAMILY_COMBO_TP], {}), []);
+    // family 목록 조회 params (추가 조건 없음)
+    const familyParams = useMemo(() => buildComboParams(COMBO_DEFS[FAMILY_COMBO_TP], []), []);
 
     // 콤보 값 전체로 초기화
     const clearCombos = useCallback((comboTps) => {
