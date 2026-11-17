@@ -56,7 +56,7 @@ export const FAMILY_COMBO_DEF = {
   TABLENM: 'TB_FAMILY',
   COLUMN0: 'FAMILY_CD',
   COLUMN1: 'FAMILY_NM',
-  PrntCodeNm: '',
+  PRNT_COLUMN: '',
   GTS_TYP_CD: '',
   SYS_TYP_CD: '',
   CD_DIV: '',
@@ -66,7 +66,7 @@ export const FAMILY_COMBO_DEF = {
 
 // 콤보 a~h 조회 정의 (기존 공통 쿼리 파라미터명 그대로)
 // - COMBO_TP: 프론트 구분용
-// - PrntCodeNm: 부모 콤보 코드 컬럼 (부모 없는 a, h는 '')
+// - PRNT_COLUMN: 부모 콤보 코드 컬럼 (부모 없는 a, h는 '')
 // - family 조건(FAMILY_CD)은 조회 시 Fetch 훅에서 자동으로 추가
 // - 테이블, 컬럼, 조건 값은 임시 값 → 실제 값으로 교체
 export const COMBO_DEFS = [
@@ -75,7 +75,7 @@ export const COMBO_DEFS = [
     TABLENM: 'TB_A',
     COLUMN0: 'A_CD',
     COLUMN1: 'A_NM',
-    PrntCodeNm: '',
+    PRNT_COLUMN: '',
     GTS_TYP_CD: '',
     SYS_TYP_CD: '',
     CD_DIV: '',
@@ -87,7 +87,7 @@ export const COMBO_DEFS = [
     TABLENM: 'TB_B',
     COLUMN0: 'B_CD',
     COLUMN1: 'B_NM',
-    PrntCodeNm: 'A_CD',
+    PRNT_COLUMN: 'A_CD',
     GTS_TYP_CD: '',
     SYS_TYP_CD: '',
     CD_DIV: '',
@@ -99,7 +99,7 @@ export const COMBO_DEFS = [
     TABLENM: 'TB_C',
     COLUMN0: 'C_CD',
     COLUMN1: 'C_NM',
-    PrntCodeNm: 'B_CD',
+    PRNT_COLUMN: 'B_CD',
     GTS_TYP_CD: '',
     SYS_TYP_CD: '',
     CD_DIV: '',
@@ -111,7 +111,7 @@ export const COMBO_DEFS = [
     TABLENM: 'TB_D',
     COLUMN0: 'D_CD',
     COLUMN1: 'D_NM',
-    PrntCodeNm: 'C_CD',
+    PRNT_COLUMN: 'C_CD',
     GTS_TYP_CD: '',
     SYS_TYP_CD: '',
     CD_DIV: '',
@@ -123,7 +123,7 @@ export const COMBO_DEFS = [
     TABLENM: 'TB_E',
     COLUMN0: 'E_CD',
     COLUMN1: 'E_NM',
-    PrntCodeNm: 'D_CD',
+    PRNT_COLUMN: 'D_CD',
     GTS_TYP_CD: '',
     SYS_TYP_CD: '',
     CD_DIV: '',
@@ -135,7 +135,7 @@ export const COMBO_DEFS = [
     TABLENM: 'TB_F',
     COLUMN0: 'F_CD',
     COLUMN1: 'F_NM',
-    PrntCodeNm: 'E_CD',
+    PRNT_COLUMN: 'E_CD',
     GTS_TYP_CD: '',
     SYS_TYP_CD: '',
     CD_DIV: '',
@@ -147,7 +147,7 @@ export const COMBO_DEFS = [
     TABLENM: 'TB_G',
     COLUMN0: 'G_CD',
     COLUMN1: 'G_NM',
-    PrntCodeNm: 'F_CD',
+    PRNT_COLUMN: 'F_CD',
     GTS_TYP_CD: '',
     SYS_TYP_CD: '',
     CD_DIV: '',
@@ -159,7 +159,7 @@ export const COMBO_DEFS = [
     TABLENM: 'TB_H',
     COLUMN0: 'H_CD',
     COLUMN1: 'H_NM',
-    PrntCodeNm: '',
+    PRNT_COLUMN: '',
     GTS_TYP_CD: '',
     SYS_TYP_CD: '',
     CD_DIV: '',

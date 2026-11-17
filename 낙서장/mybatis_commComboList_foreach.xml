@@ -30,8 +30,8 @@
                      , ${def.COLUMN0}   AS CD
                      , ${def.COLUMN1}  AS NM
                 <choose>
-                    <when test="def.PrntCodeNm != null and def.PrntCodeNm != ''">
-                     , ${def.PrntCodeNm} AS PRNT_CD
+                    <when test="def.PRNT_COLUMN != null and def.PRNT_COLUMN != ''">
+                     , ${def.PRNT_COLUMN} AS PRNT_CD
                     </when>
                     <otherwise>
                      , NULL AS PRNT_CD
