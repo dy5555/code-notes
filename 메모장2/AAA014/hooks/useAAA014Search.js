@@ -27,25 +27,38 @@ const createInitialFilters = () => ({
 // SQL 문자열 값 이스케이프: 작은따옴표로 문장을 끊고 SQL을 끼워 넣는 것 방지
 const escapeSqlVal = (val) => String(val).replace(/'/g, "''");
 
-// 콤보 행 + 현재 family/부모 값 → CodeSelect params
-// - family, 부모 조건을 in_cont 뒤에 붙임 (값이 없으면 안 붙임)
-// - 프론트 전용 항목(FAMILY_COLUMN 등)은 빼고 공통 쿼리 파라미터만 전송
-// - queryDeps: family/부모 값이 바뀌면 CodeSelect가 다시 조회하도록 의존값 전달
-const buildComboParams = (comboDef, familyVal, prntVal) => {
-    const { FAMILY_COLUMN, PRNT_COMBO_TP, PRNT_COLUMN, ...sendParams } = comboDef;
+// 값이 비어 있는지 (비어 있으면 조건을 붙이지 않음 = 전체)
+const isEmptyVal = (val) => val === null || val === undefined || val === '';
 
-    let addCond = '';
-    if (FAMILY_COLUMN && familyVal) {
-        addCond += ` AND ${FAMILY_COLUMN} = '${escapeSqlVal(familyVal)}'`;
-    }
-    if (PRNT_COLUMN && prntVal) {
-        addCond += ` AND ${PRNT_COLUMN} = '${escapeSqlVal(prntVal)}'`;
-    }
+// 콤보별 추가 조건 목록: family + 연쇄 상위 콤보 전부
+// - 조건 컬럼은 각 콤보 데이터셋 행의 COLUMN0 (하위 테이블에 같은 이름으로 있음)
+// - 예) d: family, a, b, c 조건 / h: family 조건만 (독립)
+const getComboConds = (comboTp, familyVal, chainValMap) => {
+    const familyCond = { col: COMBO_DEFS[FAMILY_COMBO_TP].COLUMN0, val: familyVal };
+
+    const chainIdx = CHAIN_COMBO_ORDER.indexOf(comboTp);
+    if (chainIdx < 0) return [familyCond];
+
+    const upperConds = CHAIN_COMBO_ORDER
+        .slice(0, chainIdx)
+        .map((upperComboTp) => ({ col: COMBO_DEFS[upperComboTp].COLUMN0, val: chainValMap[upperComboTp] }));
+
+    return [familyCond, ...upperConds];
+};
+
+// 데이터셋 행 + 추가 조건 → CodeSelect params
+// - 추가 조건을 IN_CONT 뒤에 붙임 (값이 없으면 안 붙임)
+// - queryDeps: 조건 값이 바뀌면 CodeSelect가 다시 조회하도록 의존값 전달
+const buildComboParams = (comboDef, conds) => {
+    const addCond = conds
+        .filter(({ col, val }) => col && !isEmptyVal(val))
+        .map(({ col, val }) => ` AND ${col} = '${escapeSqlVal(val)}'`)
+        .join('');
 
     return {
-        ...sendParams,
-        in_cont: `${sendParams.in_cont}${addCond}`,
-        queryDeps: [familyVal ?? null, prntVal ?? null]
+        ...comboDef,
+        IN_CONT: `${comboDef.IN_CONT}${addCond}`,
+        queryDeps: conds.map(({ val }) => (isEmptyVal(val) ? null : val))
     };
 };
 
@@ -61,7 +74,7 @@ export function useAAA014Search() {
 
     const [familyOpts, setFamilyOpts] = useState([]);
 
-    // family + 연쇄 부모(a~f) 값 구독: 바뀌면 params 다시 계산 → CodeSelect 재조회
+    // family + 연쇄 콤보(a~g) 값 구독: 바뀌면 params 다시 계산 → CodeSelect 재조회
     const familyVal = useWatch({ control, name: COMBO_FIELD_NMS.FAMILY });
     const chainVals = useWatch({ control, name: CHAIN_COMBO_ORDER.map((comboTp) => COMBO_FIELD_NMS[comboTp]) });
 
@@ -69,15 +82,14 @@ export function useAAA014Search() {
     const comboParams = useMemo(() => {
         const chainValMap = Object.fromEntries(CHAIN_COMBO_ORDER.map((comboTp, idx) => [comboTp, chainVals[idx]]));
 
-        return Object.fromEntries(COMBO_TPS.map((comboTp) => {
-            const comboDef = COMBO_DEFS[comboTp];
-            const prntVal = comboDef.PRNT_COMBO_TP ? chainValMap[comboDef.PRNT_COMBO_TP] : null;
-            return [comboTp, buildComboParams(comboDef, familyVal, prntVal)];
-        }));
+        return Object.fromEntries(COMBO_TPS.map((comboTp) => [
+            comboTp,
+            buildComboParams(COMBO_DEFS[comboTp], getComboConds(comboTp, familyVal, chainValMap))
+        ]));
     }, [familyVal, chainVals]);
 
-    // family 목록 조회 params (조건 고정)
-    const familyParams = useMemo(() => buildComboParams(COMBO_DEFS[FAMILY_COMBO_TP], null, null), []);
+    // family 목록 조회 params (추가 조건 없음)
+    const familyParams = useMemo(() => buildComboParams(COMBO_DEFS[FAMILY_COMBO_TP], []), []);
 
     // 콤보 값 전체로 초기화
     const clearCombos = useCallback((comboTps) => {
