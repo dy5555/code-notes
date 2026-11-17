@@ -2,12 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Controller } from 'react-hook-form';
 import { DatePicker, Form, Select, Radio, Input, Row, Col } from 'antd';
-import { W_OPTS, COMBO_FIELD_NMS, COMBO_LABELS } from '../consts/AAA014Vars';
+// TODO: 사내 공통 컴포넌트 import 경로 실제 값으로 교체
+import CustomField from '../../common/CustomField';
+import CodeSelect from '../../common/CodeSelect';
+import { W_OPTS, COMM_COMBO_URL, COMBO_FIELD_NMS, COMBO_TITLES } from '../consts/AAA014Vars';
 
+// 퍼블리셔 레이아웃(SearchRow 등)에 맞춰 옮길 때는
+// 각 콤보 CustomField의 name / api / params 세 속성만 그대로 가져가면 됨
 export default function SearchFilterComp({
     formMethods,
     familyOpts,
-    comboOpts
+    comboParams
 }) {
     const { control } = formMethods;
 
@@ -37,23 +42,19 @@ export default function SearchFilterComp({
                             name="wCd"
                             control={control}
                             render={({ field }) => (
-                                <Select
-                                    {...field}
-                                    style={{ width: '100%' }}
-                                    options={W_OPTS}
-                                />
+                                <Select {...field} style={{ width: '100%' }} options={W_OPTS} />
                             )}
                         />
                     </Form.Item>
                 </Col>
             </Row>
 
-            {/* 2줄: family solid Radio (단일 선택) */}
+            {/* 2줄: family solid Radio (단일 선택, 목록은 공통 콤보 API로 조회) */}
             <Row gutter={16}>
                 <Col span={24}>
                     <Form.Item label="family">
                         <Controller
-                            name="family"
+                            name={COMBO_FIELD_NMS.FAMILY}
                             control={control}
                             render={({ field }) => (
                                 <Radio.Group
@@ -68,99 +69,35 @@ export default function SearchFilterComp({
                 </Col>
             </Row>
 
-            {/* 3줄: 콤보 a~e */}
+            {/* 3줄: 콤보 a~e (CodeSelect가 params로 각자 조회) */}
             <Row gutter={16}>
                 <Col flex="1">
-                    <Form.Item label={COMBO_LABELS.A}>
-                        <Controller
-                            name={COMBO_FIELD_NMS.A}
-                            control={control}
-                            render={({ field }) => (
-                                <Select {...field} style={{ width: '100%' }} options={comboOpts.A} />
-                            )}
-                        />
-                    </Form.Item>
+                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.A} title={COMBO_TITLES.A} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.A} />
                 </Col>
                 <Col flex="1">
-                    <Form.Item label={COMBO_LABELS.B}>
-                        <Controller
-                            name={COMBO_FIELD_NMS.B}
-                            control={control}
-                            render={({ field }) => (
-                                <Select {...field} style={{ width: '100%' }} options={comboOpts.B} />
-                            )}
-                        />
-                    </Form.Item>
+                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.B} title={COMBO_TITLES.B} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.B} />
                 </Col>
                 <Col flex="1">
-                    <Form.Item label={COMBO_LABELS.C}>
-                        <Controller
-                            name={COMBO_FIELD_NMS.C}
-                            control={control}
-                            render={({ field }) => (
-                                <Select {...field} style={{ width: '100%' }} options={comboOpts.C} />
-                            )}
-                        />
-                    </Form.Item>
+                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.C} title={COMBO_TITLES.C} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.C} />
                 </Col>
                 <Col flex="1">
-                    <Form.Item label={COMBO_LABELS.D}>
-                        <Controller
-                            name={COMBO_FIELD_NMS.D}
-                            control={control}
-                            render={({ field }) => (
-                                <Select {...field} style={{ width: '100%' }} options={comboOpts.D} />
-                            )}
-                        />
-                    </Form.Item>
+                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.D} title={COMBO_TITLES.D} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.D} />
                 </Col>
                 <Col flex="1">
-                    <Form.Item label={COMBO_LABELS.E}>
-                        <Controller
-                            name={COMBO_FIELD_NMS.E}
-                            control={control}
-                            render={({ field }) => (
-                                <Select {...field} style={{ width: '100%' }} options={comboOpts.E} />
-                            )}
-                        />
-                    </Form.Item>
+                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.E} title={COMBO_TITLES.E} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.E} />
                 </Col>
             </Row>
 
             {/* 4줄: 콤보 f~h + rp cd 검색박스 */}
             <Row gutter={16}>
                 <Col flex="1">
-                    <Form.Item label={COMBO_LABELS.F}>
-                        <Controller
-                            name={COMBO_FIELD_NMS.F}
-                            control={control}
-                            render={({ field }) => (
-                                <Select {...field} style={{ width: '100%' }} options={comboOpts.F} />
-                            )}
-                        />
-                    </Form.Item>
+                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.F} title={COMBO_TITLES.F} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.F} />
                 </Col>
                 <Col flex="1">
-                    <Form.Item label={COMBO_LABELS.G}>
-                        <Controller
-                            name={COMBO_FIELD_NMS.G}
-                            control={control}
-                            render={({ field }) => (
-                                <Select {...field} style={{ width: '100%' }} options={comboOpts.G} />
-                            )}
-                        />
-                    </Form.Item>
+                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.G} title={COMBO_TITLES.G} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.G} />
                 </Col>
                 <Col flex="1">
-                    <Form.Item label={COMBO_LABELS.H}>
-                        <Controller
-                            name={COMBO_FIELD_NMS.H}
-                            control={control}
-                            render={({ field }) => (
-                                <Select {...field} style={{ width: '100%' }} options={comboOpts.H} />
-                            )}
-                        />
-                    </Form.Item>
+                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.H} title={COMBO_TITLES.H} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.H} />
                 </Col>
                 <Col flex="1">
                     <Form.Item label="rp cd">
@@ -198,7 +135,7 @@ export default function SearchFilterComp({
 SearchFilterComp.propTypes = {
     formMethods: PropTypes.object.isRequired,
     familyOpts: PropTypes.array,
-    comboOpts: PropTypes.object.isRequired
+    comboParams: PropTypes.object.isRequired
 };
 
 SearchFilterComp.defaultProps = {

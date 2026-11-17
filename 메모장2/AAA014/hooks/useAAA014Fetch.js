@@ -1,18 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-// API 파일 경로는 실제 프로젝트 위치에 맞추세요.
-import { fetchaaa01401 } from '../api/AAA014Api';
-import { DEFAULT_FAMILY } from '../consts/AAA014Vars';
+// TODO: 공통 콤보 API 호출 함수 경로/이름 실제 값으로 교체
+import { fetchCommCombo } from '../api/AAA014Api';
 
-export function useAAA014Fetch(tabId) {
-    // aaa01: 최초 진입 시 family 목록 + a~h 목록 한 번에 조회 (화면 전용 UNION ALL 쿼리 1번)
-    // - inclFamilyYn: 'Y'면 family 목록도 같이 조회 (family 변경 재조회 때는 'N')
+export function useAAA014Fetch(tabId, familyParams) {
+    // family 목록: 화면 진입 시 1번 조회 (a~h는 CodeSelect가 각자 조회)
     const {
-        data: initComboData = [],
-        isSuccess: isInitComboSuccess
+        data: familyData = [],
+        isSuccess: isFamilySuccess
     } = useQuery({
-        queryKey: ['AAA014_INIT_COMBO', tabId],
+        queryKey: ['AAA014_FAMILY', tabId],
         queryFn: async () => {
-            const result = await fetchaaa01401({ family: DEFAULT_FAMILY, inclFamilyYn: 'Y' });
+            const result = await fetchCommCombo(familyParams);
             return result.data ?? [];
         },
         retry: 1,
@@ -22,7 +20,7 @@ export function useAAA014Fetch(tabId) {
     });
 
     return {
-        initComboData,
-        isInitComboSuccess
+        familyData,
+        isFamilySuccess
     };
 }
