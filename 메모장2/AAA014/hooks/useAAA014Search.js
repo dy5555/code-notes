@@ -39,10 +39,13 @@ const toOpt = (row) => ({ label: row.VALUE, value: row.CODE });
 export function useAAA014Search() {
     // 퍼블리셔 초기 필터는 유지만 하고, 값 변경은 formMethods로만 함
     const [filters] = useState(createInitialFilters);
-    const formMethods = useForm({ defaultValues: createInitialFilters() });
-    const { control, getValues, setValue, watch } = formMethods;
+    const formMethods = useForm({ defaultValues: filters });
+    const { control, getValues, setValue, watch, reset } = formMethods;
 
     const [familyOpts, setFamilyOpts] = useState([]);
+
+    // 조회 버튼 비활성 여부 (TODO: 조회 가능 조건 정해지면 setter 추가)
+    const [disabledSearchBox] = useState(false);
 
     // 콤보 값 구독: 바뀌면 params 다시 계산 → apiCodeSelect 재조회
     const watchVals = useWatch({ control, name: WATCH_COMBO_TPS.map((comboTp) => COMBO_FIELD_NMS[comboTp]) });
@@ -85,6 +88,12 @@ export function useAAA014Search() {
         setFamilyOpts((rows ?? []).map(toOpt));
     }, []);
 
+    // 초기화: 최초 필터 값으로 복원 (현재월, w2, family a, 콤보 전체). API 재호출 없음
+    // - reset은 type이 'change'가 아니라 연쇄 초기화 로직은 안 탐
+    const resetFilters = useCallback(() => {
+        reset({ ...filters });
+    }, [reset, filters]);
+
     const getSearchParams = useCallback(() => ({ ...getValues() }), [getValues]);
 
     return {
@@ -93,7 +102,9 @@ export function useAAA014Search() {
         familyOpts,
         familyParams,
         comboParams,
+        disabledSearchBox,
         applyFamilyData,
+        resetFilters,
         getSearchParams
     };
 }
