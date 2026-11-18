@@ -20,9 +20,6 @@ export const DEFAULT_FAMILY = 'a';
 export const FAMILY_COMBO_TP = 'FAMILY';
 export const COMBO_TPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-// 연쇄 콤보 순서 (앞 콤보 변경 시 뒤쪽 콤보 전체로 초기화, h는 독립이라 제외)
-export const CHAIN_COMBO_ORDER = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-
 // 콤보별 폼 필드명 (퍼블리셔 CustomField name 기준)
 export const COMBO_FIELD_NMS = {
   FAMILY: 'family',
@@ -52,9 +49,10 @@ export const COMBO_TITLES = {
 // - 공통 API 파라미터: TABLENM, COLUMN0, COLUMN1, GTS_TYP_CD, SYS_TYP_CD, CD_DIV, SORT_TYPE, IN_CONT
 // - COLUMN0, COLUMN1: 코드 컬럼 (명칭은 안 씀, 화면 표시도 코드)
 // - 응답은 CODE, VALUE로 받음
-// - IN_CONT에는 항상 걸리는 고정 조건만 적음 (family, 상위 콤보 조건은 조회 시 자동으로 붙음)
-// - 자동 조건 컬럼은 각 콤보의 COLUMN0을 씀 (하위 테이블에 상위 코드 컬럼이 같은 이름으로 있음)
-//   예) b 선택 시 c~g 조회 조건에 AND B_CD(= B의 COLUMN0) = 'b값' 추가
+// - IN_CONT에는 항상 걸리는 고정 조건만 적음 (상위 콤보 조건은 조회 시 자동으로 붙음)
+// - SC_SEQ: 연쇄 순서 (프론트 전용, 서버로 안 보냄)
+//     숫자: 나보다 작은 번호가 상위 → 상위 COLUMN0 = 상위 값 조건 자동 추가, 내가 바뀌면 큰 번호 초기화
+//     빈 값: 완전 독립 (조건 없음, 초기화 안 됨)
 // - 테이블, 컬럼, 조건 값은 임시 값 → 실제 값으로 교체
 export const COMBO_DEFS = {
   FAMILY: {
@@ -66,6 +64,7 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: 1,
   },
   A: {
     TABLENM: 'TB_A',
@@ -76,6 +75,7 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: 2,
   },
   B: {
     TABLENM: 'TB_B',
@@ -86,6 +86,7 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: 3,
   },
   C: {
     TABLENM: 'TB_C',
@@ -96,6 +97,7 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: 4,
   },
   D: {
     TABLENM: 'TB_D',
@@ -106,6 +108,7 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: 5,
   },
   E: {
     TABLENM: 'TB_E',
@@ -116,6 +119,7 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: 6,
   },
   F: {
     TABLENM: 'TB_F',
@@ -126,6 +130,7 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: 7,
   },
   G: {
     TABLENM: 'TB_G',
@@ -136,6 +141,7 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: 8,
   },
   H: {
     TABLENM: 'TB_H',
@@ -146,5 +152,6 @@ export const COMBO_DEFS = {
     CD_DIV: '',
     SORT_TYPE: '',
     IN_CONT: '',
+    SC_SEQ: '',
   },
 };
