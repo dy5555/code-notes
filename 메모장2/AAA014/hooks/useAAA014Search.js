@@ -61,9 +61,6 @@ export function useAAA014Search() {
         ]));
     }, [watchVals]);
 
-    // family 목록 조회 params (SC_SEQ 1번이라 상위 조건 없음)
-    const familyParams = useMemo(() => makeChainCombo(COMBO_DEFS, FAMILY_COMBO_TP).params, []);
-
     // 콤보 값 전체로 초기화
     const clearCombos = useCallback((comboTps) => {
         comboTps.forEach((comboTp) => setValue(COMBO_FIELD_NMS[comboTp], null));
@@ -100,7 +97,6 @@ export function useAAA014Search() {
         filters,
         formMethods,
         familyOpts,
-        familyParams,
         comboParams,
         disabledSearchBox,
         applyFamilyData,

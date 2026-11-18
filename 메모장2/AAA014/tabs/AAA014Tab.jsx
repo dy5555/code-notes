@@ -10,14 +10,13 @@ export default function AAA014Tab({
     filters,
     formMethods,
     familyOpts,
-    familyParams,
     comboParams,
     disabledSearchBox,
     applyFamilyData,
     resetFilters,
     getSearchParams
 }) {
-    const { familyData, isFamilySuccess } = useAAA014Fetch(tabId, familyParams);
+    const { familyData, isFamilySuccess } = useAAA014Fetch(tabId);
 
     // 검색영역 화면 상태 (SearchConditionForm에 그대로 전달)
     const [expanded, setExpanded] = useState(false); // 상세 검색 펼침 여부
@@ -81,7 +80,6 @@ AAA014Tab.propTypes = {
     filters: PropTypes.object.isRequired,
     formMethods: PropTypes.object.isRequired,
     familyOpts: PropTypes.array,
-    familyParams: PropTypes.object.isRequired,
     comboParams: PropTypes.object.isRequired,
     disabledSearchBox: PropTypes.bool,
     applyFamilyData: PropTypes.func.isRequired,
