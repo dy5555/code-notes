@@ -4,7 +4,7 @@ import { Controller } from 'react-hook-form';
 import { DatePicker, Form, Select, Radio, Input, Row, Col } from 'antd';
 // TODO: 사내 공통 컴포넌트 import 경로 실제 값으로 교체
 import CustomField from '../../common/CustomField';
-import CodeSelect from '../../common/CodeSelect';
+import apiCodeSelect from '../../common/apiCodeSelect';
 import { W_OPTS, COMM_COMBO_URL, COMBO_FIELD_NMS, COMBO_TITLES } from '../consts/AAA014Vars';
 
 // 퍼블리셔 레이아웃(SearchRow 등)에 맞춰 옮길 때는
@@ -69,35 +69,35 @@ export default function SearchFilterComp({
                 </Col>
             </Row>
 
-            {/* 3줄: 콤보 a~e (CodeSelect가 params로 각자 조회) */}
+            {/* 3줄: 콤보 a~e (apiCodeSelect가 params로 각자 조회) */}
             <Row gutter={16}>
                 <Col flex="1">
-                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.A} title={COMBO_TITLES.A} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.A} />
+                    <CustomField component={apiCodeSelect} name={COMBO_FIELD_NMS.A} title={COMBO_TITLES.A} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.A} />
                 </Col>
                 <Col flex="1">
-                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.B} title={COMBO_TITLES.B} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.B} />
+                    <CustomField component={apiCodeSelect} name={COMBO_FIELD_NMS.B} title={COMBO_TITLES.B} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.B} />
                 </Col>
                 <Col flex="1">
-                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.C} title={COMBO_TITLES.C} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.C} />
+                    <CustomField component={apiCodeSelect} name={COMBO_FIELD_NMS.C} title={COMBO_TITLES.C} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.C} />
                 </Col>
                 <Col flex="1">
-                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.D} title={COMBO_TITLES.D} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.D} />
+                    <CustomField component={apiCodeSelect} name={COMBO_FIELD_NMS.D} title={COMBO_TITLES.D} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.D} />
                 </Col>
                 <Col flex="1">
-                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.E} title={COMBO_TITLES.E} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.E} />
+                    <CustomField component={apiCodeSelect} name={COMBO_FIELD_NMS.E} title={COMBO_TITLES.E} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.E} />
                 </Col>
             </Row>
 
             {/* 4줄: 콤보 f~h + rp cd 검색박스 */}
             <Row gutter={16}>
                 <Col flex="1">
-                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.F} title={COMBO_TITLES.F} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.F} />
+                    <CustomField component={apiCodeSelect} name={COMBO_FIELD_NMS.F} title={COMBO_TITLES.F} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.F} />
                 </Col>
                 <Col flex="1">
-                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.G} title={COMBO_TITLES.G} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.G} />
+                    <CustomField component={apiCodeSelect} name={COMBO_FIELD_NMS.G} title={COMBO_TITLES.G} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.G} />
                 </Col>
                 <Col flex="1">
-                    <CustomField component={CodeSelect} name={COMBO_FIELD_NMS.H} title={COMBO_TITLES.H} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.H} />
+                    <CustomField component={apiCodeSelect} name={COMBO_FIELD_NMS.H} title={COMBO_TITLES.H} placeholder="전체" method="post" api={COMM_COMBO_URL} params={comboParams.H} />
                 </Col>
                 <Col flex="1">
                     <Form.Item label="rp cd">

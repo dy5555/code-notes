@@ -46,9 +46,9 @@ const getComboConds = (comboTp, familyVal, chainValMap) => {
     return [familyCond, ...upperConds];
 };
 
-// 데이터셋 행 + 추가 조건 → CodeSelect params
+// 데이터셋 행 + 추가 조건 → apiCodeSelect params
 // - 추가 조건을 IN_CONT(고정 조건) 뒤에 붙임 (값이 없으면 안 붙임)
-// - queryDeps: 조건 값이 바뀌면 CodeSelect가 다시 조회하도록 의존값 전달
+// - queryDeps: 조건 값이 바뀌면 apiCodeSelect가 다시 조회하도록 의존값 전달
 const buildComboParams = (comboDef, conds) => {
     const addCond = conds
         .filter(({ col, val }) => col && !isEmptyVal(val))
@@ -73,7 +73,7 @@ export function useAAA014Search() {
 
     const [familyOpts, setFamilyOpts] = useState([]);
 
-    // family + 연쇄 콤보(a~g) 값 구독: 바뀌면 params 다시 계산 → CodeSelect 재조회
+    // family + 연쇄 콤보(a~g) 값 구독: 바뀌면 params 다시 계산 → apiCodeSelect 재조회
     const familyVal = useWatch({ control, name: COMBO_FIELD_NMS.FAMILY });
     const chainVals = useWatch({ control, name: CHAIN_COMBO_ORDER.map((comboTp) => COMBO_FIELD_NMS[comboTp]) });
 

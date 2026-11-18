@@ -35,7 +35,7 @@ export default function AAA014Tab({
                     filters={filters} // 퍼블리셔 초기 필터 원본: 규약상 props 구조 유지용
                     formMethods={formMethods} // RHF 폼 객체: 각 필드 바인딩 기준
                     familyOpts={familyOpts} // family Radio 옵션: 공통 콤보 API 조회 결과
-                    comboParams={comboParams} // 콤보 a~h CodeSelect params: family/부모 값 반영된 조회 조건
+                    comboParams={comboParams} // 콤보 a~h apiCodeSelect params: family/부모 값 반영된 조회 조건
                 />
             </Card>
             <Card size="small">

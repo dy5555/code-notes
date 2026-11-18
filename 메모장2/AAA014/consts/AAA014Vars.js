@@ -1,6 +1,6 @@
 // AAA014 화면 상수
 
-// 공통 콤보 조회 URL (CodeSelect api 속성에 전달)
+// 공통 콤보 조회 URL (apiCodeSelect api 속성에 전달)
 // TODO: 실제 공통 콤보 URL로 교체
 export const COMM_COMBO_URL = '';
 

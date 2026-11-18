@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchCommCombo } from '../api/AAA014Api';
 
 export function useAAA014Fetch(tabId, familyParams) {
-    // family 목록: 화면 진입 시 1번 조회 (a~h는 CodeSelect가 각자 조회)
+    // family 목록: 화면 진입 시 1번 조회 (a~h는 apiCodeSelect가 각자 조회)
     const {
         data: familyData = [],
         isSuccess: isFamilySuccess
